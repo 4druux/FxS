@@ -1,6 +1,5 @@
 "use client";
 import "../components/Scrollbar/scroll.css";
-import { useEffect } from "react";
 // Components
 import Hero from "@/components/Hero";
 import Explore from "@/components/Explore";
@@ -13,15 +12,7 @@ import CountUp from "@/components/CountUp";
 import CardProduct from "@/components/CardProduct";
 
 const Home = () => {
-  // add locomotive scroll
-  useEffect(() => {
-    const loadLocomotiveScroll = async () => {
-      const locomotiveScroll = (await import("locomotive-scroll")).default;
-      new locomotiveScroll();
-    };
 
-    loadLocomotiveScroll();
-  }, []);
   return (
     <div className="h-full overflow-x-hidden">
       <Hero />

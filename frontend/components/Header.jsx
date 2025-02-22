@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import ShinyBorder from "./button/ShinyBorder";
+import ShinyBorder from "./Button/ShinyBorder";
 
 const Header = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -52,7 +52,7 @@ const Header = () => {
         className="fixed top-0 left-0 w-full"
         style={{
           opacity: isDynamic ? 1 : 1,
-          zIndex: 48,
+          zIndex: 50,
         }}
       />
       <div
@@ -61,7 +61,7 @@ const Header = () => {
           ...getTransitionStyles(),
           left: "50%",
           transform: "translateX(-50%)",
-          zIndex: 49,
+          zIndex: 50,
         }}
       >
         <div className="flex items-center justify-between h-full">

@@ -1,7 +1,7 @@
-import ShinyText from "./button/ShinyText";
-import Menuitem from "./ui/Menuitem";
+import ShinyText from "./Button/ShinyText";
+import Menuitem from "./Ui/Menuitem";
 import Separator from "./Separator";
-import LinkButton from "./button/LinkButton";
+import LinkButton from "./Button/LinkButton";
 
 const menuItems = [
   {

@@ -1,5 +1,5 @@
 "use client";
-import { WorldMapUi } from "./ui/WorldMapUi";
+import { WorldMapUi } from "./Ui/WorldMapUi";
 
 export function WorldMap() {
   return (

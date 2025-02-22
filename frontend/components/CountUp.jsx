@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
-import TextCountUp from "./ui/TextCountUp.jsx";
-import ShinyText from "./button/ShinyText.jsx";
+import TextCountUp from "./Ui/TextCountUp.jsx";
+import ShinyText from "./Button/ShinyText.jsx";
 
 const CountUp = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -50,12 +50,8 @@ const CountUp = () => {
                     className="text-yellow-500"
                     startWhen={isVisible}
                   />
-                  <span className="text-neutral-300 text-2xl font-bold">
-                    /
-                  </span>
-                  <span className="text-neutral-300 text-2xl font-bold">
-                    5
-                  </span>
+                  <span className="text-neutral-300 text-2xl font-bold">/</span>
+                  <span className="text-neutral-300 text-2xl font-bold">5</span>
                 </div>
               </div>
 

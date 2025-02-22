@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { FaShoppingCart } from "react-icons/fa";
-import SpotlightCard from "./ui/SpotlightCard";
+import SpotlightCard from "./Ui/SpotlightCard";
 import Separator from "./Separator";
-import ShinyText from "./button/ShinyText";
+import ShinyText from "./Button/ShinyText";
 
 const CardProduct = () => {
   const products = [
@@ -100,7 +100,9 @@ const CardProduct = () => {
                   className="w-full h-[210px] object-cover rounded-2xl"
                 />
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-neutral-100">{product.title}</h3>
+                  <h3 className="text-lg font-semibold text-neutral-100">
+                    {product.title}
+                  </h3>
                   <p className="text-gray-400">{product.description}</p>
                   <p className="text-gray-300 mt-2">{product.price}</p>
 

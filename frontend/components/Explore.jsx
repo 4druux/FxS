@@ -1,5 +1,5 @@
 import Image from "next/image";
-import ShinyText from "./button/ShinyText";
+import ShinyText from "./Button/ShinyText";
 import { FaDiscord, FaRobot, FaShieldAlt, FaUsersCog } from "react-icons/fa"; // Import icons yang diperlukan
 
 // Data untuk items
@@ -35,6 +35,11 @@ const exploreData = {
   ],
 };
 
+const ROCKET_IMAGE = {
+  width: 322,
+  height: 580,
+};
+
 const Explore = () => {
   return (
     <section
@@ -67,11 +72,18 @@ const Explore = () => {
 
           {/* image */}
           <div className="hidden xl:flex justify-center">
-            <div className="relative w-[322px] h-[580px]">
+            <div
+              className="relative"
+              style={{
+                width: ROCKET_IMAGE.width,
+                height: ROCKET_IMAGE.height,
+              }}
+            >
               <Image
                 src="/assets/explore/rocket.png"
                 fill
-                alt=""
+                sizes={`(max-width: 768px) 100vw, ${ROCKET_IMAGE.width}px`}
+                alt="Rocket illustration"
                 className="object-cover"
                 quality={100}
                 priority

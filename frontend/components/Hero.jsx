@@ -1,10 +1,10 @@
 "use client";
 import Separator from "./Separator";
 import Badge from "./Badge";
-import { WorldMap } from "./WorldMap";
+// import { WorldMap } from "./WorldMap";
 import TextPressure from "./button/TextPressure";
 import TrueFocus from "./button/TrueFocus";
-import LinkButton from "./button/LinkButton";
+import LinkButton from "@/components/Button/LinkButton";
 
 const Hero = () => {
   return (
@@ -13,9 +13,9 @@ const Hero = () => {
       <div className="bg-hero_overlay absolute w-full h-full z-10">
         {/* world-map */}
       </div>
-      <div className="absolute top-0 left-0 w-full h-full z-0">
+      {/* <div className="absolute top-0 left-0 w-full h-full z-0">
         <WorldMap />
-      </div>
+      </div> */}
       <div className="container mx-auto h-full flex flex-col xl:flex-row items-center z-30 relative">
         {/* text */}
         <div

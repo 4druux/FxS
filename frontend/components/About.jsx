@@ -5,9 +5,9 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Badge from "./Badge";
 import Separator from "./Separator";
-import LinkButton from "./button/LinkButton";
+import LinkButton from "@/components/Button/LinkButton";
 import { Rocket } from "lucide-react";
-import ShinyText from "./button/ShinyText";
+import ShinyText from "./Button/ShinyText";
 
 const data = [
   {
@@ -54,7 +54,7 @@ const About = () => {
     gsap.registerPlugin(ScrollTrigger);
     const animation = gsap.fromTo(
       scrollableSectionRef.current,
-      { transalteX: 0 },
+      { translateX: 0 },
       {
         translateX: "-200vw",
         ease: "none",
@@ -72,6 +72,11 @@ const About = () => {
       animation.kill();
     };
   }, []);
+
+  const IMAGE_DIMENSIONS = {
+    width: 800,
+    height: 600,
+  };
 
   return (
     <section className="overflow-hidden bg-[#121212]" id="about">
@@ -115,15 +120,18 @@ const About = () => {
                   </div>
 
                   {/* image */}
-                  <div className="hidden xl:flex flex-1 w-full h-[70vh] relative">
-                    <Image
-                      src={item.imgSrc}
-                      fill
-                      className="object-cover rounded-3xl"
-                      quality={100}
-                      priority
-                      alt=""
-                    />
+                  <div className="hidden xl:flex flex-1 relative">
+                    <div className="relative w-full h-[70vh]">
+                      <Image
+                        src={item.imgSrc}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover rounded-3xl"
+                        quality={100}
+                        priority
+                        alt={`${item.title} illustration`}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

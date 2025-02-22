@@ -5,9 +5,9 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Badge from "./Badge";
 import Separator from "./Separator";
-import LinkButton from "./Button/LinkButton";
+import LinkButton from "./button/LinkButton";
 import { Rocket } from "lucide-react";
-import ShinyText from "./Button/ShinyText";
+import ShinyText from "./button/ShinyText";
 
 const data = [
   {

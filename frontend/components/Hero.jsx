@@ -4,7 +4,7 @@ import Badge from "./Badge";
 // import { WorldMap } from "./WorldMap";
 import TextPressure from "./button/TextPressure";
 import TrueFocus from "./button/TrueFocus";
-import LinkButton from "./Button/LinkButton";
+import LinkButton from "./button/LinkButton";
 
 const Hero = () => {
   return (

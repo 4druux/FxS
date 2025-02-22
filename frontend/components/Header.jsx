@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
-import ShinyBorder from "./Button/ShinyBorder";
+import ShinyBorder from "./button/ShinyBorder";
 
 const Header = () => {
   const [scrollY, setScrollY] = useState(0);

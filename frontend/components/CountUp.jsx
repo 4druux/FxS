@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
-import TextCountUp from "./Ui/TextCountUp.jsx";
-import ShinyText from "./Button/ShinyText.jsx";
+import TextCountUp from "./ui/TextCountUp.jsx";
+import ShinyText from "./button/ShinyText.jsx";
 
 const CountUp = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -13,7 +13,6 @@ const CountUp = () => {
 
   return (
     <section className="pt-12 pb-16 xl:pt-16 xl:pb-36 bg-[#121212]">
-
       <div className="max-w-7xl mx-auto px-4">
         <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-6"

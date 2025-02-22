@@ -13,7 +13,6 @@ const CountUp = () => {
 
   return (
     <section className="pt-12 pb-16 xl:pt-16 xl:pb-36 bg-[#121212]">
-      {/* Tambahkan border dan gradient mask */}
 
       <div className="max-w-7xl mx-auto px-4">
         <motion.div

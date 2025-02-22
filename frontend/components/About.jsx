@@ -5,7 +5,7 @@ import ScrollTrigger from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Badge from "./Badge";
 import Separator from "./Separator";
-import LinkButton from "@/components/Button/LinkButton";
+import LinkButton from "./Button/LinkButton";
 import { Rocket } from "lucide-react";
 import ShinyText from "./Button/ShinyText";
 

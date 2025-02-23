@@ -10,20 +10,22 @@ import OpeningHours from "@/components/OpeningHours";
 import TextMarquee from "@/components/TextMarquee";
 import CountUp from "@/components/CountUp";
 import CardProduct from "@/components/CardProduct";
+import PageTransitionCurve from "@/components/Curve";
 
 const Home = () => {
-
   return (
-    <div className="h-full overflow-x-hidden">
-      <Hero />
-      <Explore />
-      <About />
-      <CardProduct />
-      <TextMarquee />
-      <Testimonials />
-      <CountUp />
-      {/* <OpeningHours /> */}
-    </div>
+    // <PageTransitionCurve backgroundColor="#125671">
+      <div className="h-full overflow-x-hidden">
+        <Hero />
+        <Explore />
+        <About />
+        <CardProduct />
+        <TextMarquee />
+        <Testimonials />
+        <CountUp />
+        {/* <OpeningHours /> */}
+      </div>
+    // </PageTransitionCurve>
   );
 };
 

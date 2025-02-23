@@ -8,20 +8,22 @@ import "./style.scss";
 const routes = {
   "/": "Home",
   "/about": "About",
-  "/projects": "project",
+  "/projects": "Projects",
   "/contact": "Contact",
 };
 
-const anim = (variants) => {
-  return {
-    variants,
-    initial: "initial",
-    animate: "enter",
-    exit: "exit",
-  };
-};
+const animationProps = (variants) => ({
+  variants,
+  initial: "initial",
+  animate: "enter",
+  exit: "exit",
+});
 
-export default function Curve({ children, backgroundColor }) {
+export default function PageTransitionCurve({
+  children,
+  backgroundColor,
+  onComplete,
+}) {
   const pathname = usePathname();
   const [dimensions, setDimensions] = useState({
     width: null,
@@ -29,58 +31,65 @@ export default function Curve({ children, backgroundColor }) {
   });
 
   useEffect(() => {
-    function resize() {
+    function handleResize() {
       setDimensions({
         width: window.innerWidth,
         height: window.innerHeight,
       });
     }
-    resize();
-    window.addEventListener("resize", resize);
+    handleResize();
+    window.addEventListener("resize", handleResize);
     return () => {
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
   return (
-    <div className="page curve" style={{ backgroundColor }}>
+    <div className="page-transition-curve" style={{ backgroundColor }}>
       <div
         style={{ opacity: dimensions.width == null ? 1 : 0 }}
-        className="curve__background"
+        className="page-transition-background"
       />
-      <motion.p className="curve__route" {...anim(text)}>
+      <motion.p className="page-transition-route" {...animationProps(text)}>
         {routes[pathname]}
       </motion.p>
-      {dimensions.width != null && <SVG {...dimensions} />}
+      {dimensions.width != null && (
+        <TransitionCurveSVG
+          {...dimensions}
+          backgroundColor={backgroundColor}
+          onComplete={onComplete}
+        />
+      )}
       {children}
     </div>
   );
 }
 
-const SVG = ({ height, width }) => {
-  if (!height || !width) return null;
-
+const TransitionCurveSVG = ({ height, width, backgroundColor, onComplete }) => {
   const initialPath = `
-    M0 300 
-    Q${width / 2} 0 ${width} 300
-    L${width} ${height + 300}
-    Q${width / 2} ${height + 600} 0 ${height + 300}
-    L0 0
-  `;
-
+        M0 300 
+        Q${width / 2} 0 ${width} 300
+        L${width} ${height + 300}
+        Q${width / 2} ${height + 600} 0 ${height + 300}
+        L0 0
+    `;
   const targetPath = `
-    M0 300
-    Q${width / 2} 0 ${width} 300
-    L${width} ${height}
-    Q${width / 2} ${height} 0 ${height}
-    L0 0
-  `;
+        M0 300
+        Q${width / 2} 0 ${width} 300
+        L${width} ${height}
+        Q${width / 2} ${height} 0 ${height}
+        L0 0
+    `;
 
   return (
-    <motion.svg className="curve__transition-svg" {...anim(translate)}>
+    <motion.svg
+      className="page-transition-svg"
+      {...animationProps(translate)}
+      onAnimationComplete={onComplete} // Tambahkan event ini
+    >
       <motion.path
-        className="curve__transition-svg-path"
-        {...anim(curve(initialPath, targetPath))}
+        {...animationProps(curve(initialPath, targetPath))}
+        fill={backgroundColor}
       />
     </motion.svg>
   );

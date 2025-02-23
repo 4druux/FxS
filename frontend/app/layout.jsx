@@ -2,6 +2,7 @@
 import { Cormorant_Upright, Open_Sans } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./client-layout";
+
 const cormorant_upright = Cormorant_Upright({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],

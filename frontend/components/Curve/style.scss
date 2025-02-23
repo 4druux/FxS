@@ -1,40 +1,28 @@
-// style.scss
-.curve {
-  &__transition-svg {
+.page-transition-curve {
+  .page-transition-svg,
+  .page-transition-background {
     position: fixed;
     height: calc(100vh + 600px);
-    width: 100vw;
+    width: 100vw; 
     pointer-events: none;
     left: 0;
     top: 0;
     z-index: 50;
-
-    &-path {
-      fill: currentColor;
-      width: 100%;
-      height: 100%;
-    }
   }
 
-  &__background {
-    position: fixed;
-    height: calc(100vh + 600px);
-    width: 100vw;
-    pointer-events: none;
-    left: 0;
-    top: 0;
-    z-index: 50;
+  .page-transition-background {
     background-color: black;
     transition: opacity 0s linear 0.1s;
+    z-index: 49;
   }
 
-  &__route {
+  .page-transition-route {
     position: absolute;
     left: 50%;
     top: 40%;
     color: white;
     font-size: 46px;
-    z-index: 53;
+    z-index: 51;
     transform: translateX(-50%);
     text-align: center;
   }

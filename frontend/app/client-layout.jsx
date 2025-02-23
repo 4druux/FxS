@@ -20,11 +20,10 @@ export default function ClientLayout({ children }) {
     <>
       <Header />
       <AnimatePresence mode="wait" initial={false}>
-        <PageTransition key={pathname}>
-          <LocomotiveLayout key={`locomotive-${pathname}`}>
-            <main className="content">{children}</main>
-          </LocomotiveLayout>
-        </PageTransition>
+      <PageTransition key={pathname} backgroundColor={"#125671"} />
+        <LocomotiveLayout key={`locomotive-${pathname}`}>
+          {children}
+        </LocomotiveLayout>
       </AnimatePresence>
       <Footer />
     </>

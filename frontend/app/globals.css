@@ -7,6 +7,9 @@
 body {
   font-family: "Manrope", sans-serif;
 }
+body {
+  margin: 0px;
+}
 
 /* swiper navigation */
 .swiper-button-next::after,

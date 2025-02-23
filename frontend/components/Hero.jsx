@@ -2,13 +2,13 @@
 import Separator from "./Separator";
 import Badge from "./Badge";
 // import { WorldMap } from "./WorldMap";
-import TextPressure from "./button/TextPressure";
+// import TextPressure from "./button/TextPressure";
 import TrueFocus from "./button/TrueFocus";
 import LinkButton from "./button/LinkButton";
 
 const Hero = () => {
   return (
-    <section className="h-[100vh] xl:h-screen relative bg-black">
+    <section className="h-[100vh] xl:h-screen relative bg-gradient-to-br from-gray-900 to-black">
       {}
       <div className="bg-hero_overlay absolute w-full h-full z-10">
         {/* world-map */}
@@ -25,7 +25,7 @@ const Hero = () => {
         >
           {/* Badge & H1 */}
           {/*Text Pressure*/}
-          <div className="flex flex-col items-center w-full md:w-3/4 lg:w-2/3">
+          {/* <div className="flex flex-col items-center w-full md:w-3/4 lg:w-2/3">
             <TextPressure
               text="Welcome to FxS Store"
               strokeColor="#ff0000"
@@ -34,7 +34,7 @@ const Hero = () => {
               strokeWidth={1}
               textColor="#b5b5b5a4"
             />
-          </div>
+          </div> */}
           <div className="lead font-light max-w-[300px] md:max-w-[430px] xl:max-w-[560px]">
             <TrueFocus
               sentence="The highes quality tools"

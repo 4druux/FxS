@@ -4,7 +4,6 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import LocomotiveLayout from "@/components/LocomotiveLayout";
 import { AnimatePresence } from "framer-motion";
-import PageTransition from "@/components/Curve";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
@@ -20,7 +19,6 @@ export default function ClientLayout({ children }) {
     <>
       <Header />
       <AnimatePresence mode="wait" initial={false}>
-      <PageTransition key={pathname} backgroundColor={"#125671"} />
         <LocomotiveLayout key={`locomotive-${pathname}`}>
           {children}
         </LocomotiveLayout>

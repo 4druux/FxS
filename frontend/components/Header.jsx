@@ -35,9 +35,9 @@ const Header = () => {
 
   const getTransitionStyles = () => ({
     width: isDynamic ? "600px" : "75%",
-    top: isDynamic ? "10px" : "10px",
+    top: isDynamic ? "15px" : "15px",
     borderRadius: isDynamic ? "30px" : "30px",
-    padding: isDynamic ? "8px 20px" : "8px 20px",
+    padding: isDynamic ? " 0px 20px" : "0px 20px",
     background: isDynamic ? "rgba(18, 18, 18, 0.4)" : "rgba(18, 18, 18, 0.4)",
     backdropFilter: isDynamic ? "blur(10px)" : "blur(10px)",
     transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -75,24 +75,33 @@ const Header = () => {
             />
           </Link>
           <ul
-            className="hidden sm:flex ml-4 font-bold"
+            className="hidden sm:flex ml-4"
             style={{
-              gap: "16px",
+              gap: "30px",
               fontSize: "14px",
             }}
           >
             {navLinks.map((link) => (
-              <li key={link.path}>
+              <li key={link.path} className="relative">
+                {pathname === link.path && (
+                  <span className="absolute -left-3 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-teal-600" />
+                )}
                 <Link
                   href={link.path}
-                  className={`relative group px-2 py-1 ${
+                  className={`relative group p-1 ${
                     pathname === link.path
-                      ? "text-teal-500/70 hover:text-teal-500"
+                      ? "text-white"
                       : "text-white/70 hover:text-white"
                   }`}
                 >
-                  {link.label}
-                  <span className="absolute left-2 -bottom-1 w-full h-0.5 bg-teal-500 transform scale-x-0 transition-transform duration-300 origin-left group-hover:scale-x-50" />
+                  <div className="relative overflow-hidden">
+                    <span className="inline-block transition-transform duration-500 ease-[cubic-bezier(0.45,0,0.55,1)] group-hover:-translate-y-full">
+                      {link.label}
+                    </span>
+                    <span className="absolute top-full left-0 inline-block transition-transform duration-500 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-full">
+                      {link.label}
+                    </span>
+                  </div>
                 </Link>
               </li>
             ))}

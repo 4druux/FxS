@@ -10,11 +10,12 @@ import OpeningHours from "@/components/OpeningHours";
 import TextMarquee from "@/components/TextMarquee";
 import CountUp from "@/components/CountUp";
 import CardProduct from "@/components/CardProduct";
-import PageTransitionCurve from "@/components/Curve";
+import PageTransition from "@/components/Curve";
 
 const Home = () => {
   return (
-    // <PageTransitionCurve backgroundColor="#125671">
+    <PageTransition backgroundColor={"#083344"}>
+      {/* rgb(15, 62, 60) opsional */}
       <div className="h-full overflow-x-hidden">
         <Hero />
         <Explore />
@@ -25,7 +26,7 @@ const Home = () => {
         <CountUp />
         {/* <OpeningHours /> */}
       </div>
-    // </PageTransitionCurve>
+    </PageTransition>
   );
 };
 

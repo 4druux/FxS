@@ -25,7 +25,7 @@ const SpotlightCard = ({
       onBlur={() => setIsFocused(false)}
       onMouseEnter={() => {
         setIsHovered(true); 
-        setOpacity(0.6);
+        setOpacity(0.5);
       }}
       onMouseLeave={() => {
         setIsHovered(false); 

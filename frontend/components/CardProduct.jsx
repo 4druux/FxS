@@ -92,7 +92,7 @@ const CardProduct = () => {
             >
               <SpotlightCard
                 className="custom-spotlight-card"
-                spotlightColor="rgba(0, 229, 255, 0.2)"
+                spotlightColor="rgba(0, 229, 255, 0.1)"
               >
                 <img
                   src={product.image}

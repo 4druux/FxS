@@ -5,10 +5,11 @@ import Badge from "./Badge";
 // import TextPressure from "./button/TextPressure";
 import TrueFocus from "./button/TrueFocus";
 import LinkButton from "./button/LinkButton";
+import MagneticButton from "@/components/button/MagneticButton";
 
 const Hero = () => {
   return (
-    <section className="h-[100vh] xl:h-screen relative bg-gradient-to-br from-gray-900 to-black">
+    <section className="h-[100vh] xl:h-screen relative bg-[#121212]">
       {}
       <div className="bg-hero_overlay absolute w-full h-full z-10">
         {/* world-map */}
@@ -47,6 +48,7 @@ const Hero = () => {
           </div>
 
           <LinkButton href="/" text="Get Started" />
+          <MagneticButton href="#">Get Started</MagneticButton>
         </div>
       </div>
     </section>

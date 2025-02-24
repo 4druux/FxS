@@ -3,27 +3,28 @@
   .page-transition-background {
     position: fixed;
     height: calc(100vh + 600px);
-    width: 100vw; 
+    width: 100vw;
     pointer-events: none;
     left: 0;
     top: 0;
-    z-index: 50;
+    transition: z-index 0s linear 0.5s; // Smooth transition for z-index
   }
 
   .page-transition-background {
     background-color: black;
     transition: opacity 0s linear 0.1s;
-    z-index: 49;
   }
 
   .page-transition-route {
     position: absolute;
     left: 50%;
     top: 40%;
+    font-weight: 500;
     color: white;
-    font-size: 46px;
-    z-index: 51;
+    letter-spacing: 10px;
+    font-size: 32px;
     transform: translateX(-50%);
     text-align: center;
+    transition: z-index 0s linear 0.5s; // Smooth transition for z-index
   }
 }

@@ -8,6 +8,7 @@ import Separator from "./Separator";
 import LinkButton from "./button/LinkButton";
 import { Rocket } from "lucide-react";
 import ShinyText from "./button/ShinyText";
+import MagneticButton from "./button/MagneticButton";
 
 const data = [
   {
@@ -108,14 +109,10 @@ const About = () => {
                         {item.description}
                       </p>
                       {/* LinkButton menggantikan button biasa */}
-                      <LinkButton
-                        href={item.buttonProps.href}
-                        text={item.buttonProps.text}
-                        icon={item.buttonProps.icon}
-                        showIcon={item.buttonProps.showIcon}
-                        external={item.buttonProps.external}
-                        className="mx-auto"
-                      />
+
+                      <MagneticButton href={item.buttonProps.href}>
+                        {item.buttonProps.text}
+                      </MagneticButton>
                     </div>
                   </div>
 

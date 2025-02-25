@@ -48,7 +48,6 @@ const Hero = () => {
           </div>
 
           <LinkButton href="/" text="Get Started" />
-          <MagneticButton href="#">Get Started</MagneticButton>
         </div>
       </div>
     </section>

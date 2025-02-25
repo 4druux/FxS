@@ -10,7 +10,6 @@ import { useEffect } from "react";
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
 
-  // Reset scroll position when route changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);

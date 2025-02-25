@@ -9,7 +9,7 @@ const MagneticButton = forwardRef((props, ref) => {
       y: ["80%", "-10%"],
       transition: {
         ease: [0.19, 1, 0.22, 1],
-        duration: 0.8,
+        duration: 1.7,
       },
     });
   };
@@ -19,7 +19,7 @@ const MagneticButton = forwardRef((props, ref) => {
       y: "-80%",
       transition: {
         ease: [0.19, 1, 0.22, 1],
-        duration: 0.8,
+        duration: 1.7,
       },
     });
   };

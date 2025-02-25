@@ -15,8 +15,8 @@ const LinkButton = ({
     <button
       onClick={onClick}
       className={`relative px-8 py-4 backdrop-blur-2xl bg-teal-900/20 rounded-full border border-neutral-800 
-        border-b[0.1px] border-b-teal-600 border-r-[0.1px] border-r-teal-600 hover:border-teal-600 
-        transition-all duration-300 flex items-center gap-3 overflow-hidden group hover:scale-[1.02] ${className}`}
+        border-b-2 border-b-teal-600 border-r-2 border-r-teal-600 hover:border-teal-600 
+        transition-all duration-500 flex items-center gap-3 overflow-hidden group hover:scale-[1.02] ${className}`}
     >
       <span className="text-white/80 hover:text-white font-medium relative z-10">
         {text}

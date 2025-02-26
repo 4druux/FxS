@@ -1,11 +1,9 @@
 "use client";
-import Separator from "./Separator";
-import Badge from "./Badge";
+
 // import { WorldMap } from "./WorldMap";
 // import TextPressure from "./button/TextPressure";
-import TrueFocus from "./button/TrueFocus";
-import LinkButton from "./button/LinkButton";
-import MagneticButton from "@/components/button/MagneticButton";
+import TrueFocus from "../../button/TrueFocus";
+import LinkButton from "../../button/LinkButton";
 
 const Hero = () => {
   return (

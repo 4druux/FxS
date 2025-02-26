@@ -1,16 +1,14 @@
 "use client";
-import "../components/Scrollbar/scroll.css";
-// Components
-import Hero from "@/components/Hero";
-import Explore from "@/components/Explore";
-import About from "@/components/About";
-// import Menu from "@/components/Menu";
-import Testimonials from "@/components/Testimonials";
-import OpeningHours from "@/components/OpeningHours";
-import TextMarquee from "@/components/TextMarquee";
-import CountUp from "@/components/CountUp";
-import CardProduct from "@/components/CardProduct";
+// Curve
 import PageTransition from "@/components/Curve";
+// Components
+import Hero from "@/components/2_users/home/1_Hero";
+import Explore from "@/components/2_users/home/2_Explore";
+import About from "@/components/2_users/home/3_About";
+import CardProduct from "@/components/2_users/home/4_CardProduct";
+import Testimonials from "@/components/2_users/home/6_Testimonials";
+import TextMarquee from "@/components/2_users/home/5_TextMarquee";
+import CountUp from "@/components/2_users/home/7_CountUp";
 
 const Home = () => {
   return (
@@ -24,7 +22,6 @@ const Home = () => {
         <TextMarquee />
         <Testimonials />
         <CountUp />
-        {/* <OpeningHours /> */}
       </div>
     </PageTransition>
   );

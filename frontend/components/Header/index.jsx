@@ -2,15 +2,34 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
-import ShinyBorder from "./button/ShinyBorder";
+import { AnimatePresence, motion } from "framer-motion"; // Import motion
+import { useState, useEffect, useRef } from "react"; // Import useRef
+import ShinyText from "../button/ShinyText"; // Pastikan path benar
+import { FaUser } from "react-icons/fa";
+// import { assets } from "../assets/assets"; // Import assets jika diperlukan, dan pastikan path benar
 
 const Header = () => {
   const [scrollY, setScrollY] = useState(0);
   const [navSize, setNavSize] = useState(1);
   const [isDynamic, setIsDynamic] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State untuk dropdown
   const pathname = usePathname();
+  const dropdownRef = useRef(null); // Ref untuk dropdown
+
+  // Event listener untuk menutup dropdown saat klik di luar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -37,7 +56,7 @@ const Header = () => {
     width: isDynamic ? "600px" : "75%",
     top: isDynamic ? "15px" : "15px",
     borderRadius: isDynamic ? "30px" : "30px",
-    padding: isDynamic ? " 0px 20px" : "0px 20px",
+    padding: isDynamic ? " 0px 25px" : "0px 25px",
     background: isDynamic ? "rgba(18, 18, 18, 0.4)" : "rgba(18, 18, 18, 0.4)",
     backdropFilter: isDynamic ? "blur(10px)" : "blur(10px)",
     transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -66,16 +85,15 @@ const Header = () => {
       >
         <div className="flex items-center justify-between h-full">
           <Link href="/">
-            <Image
-              src="/assets/about/dis.jpg"
-              alt="logo"
-              width={40}
-              height={40}
-              className="rounded-full"
+            <ShinyText
+              text="FxS"
+              disabled={false}
+              speed={3}
+              className="tracking-widest text-md font-bold text-white/50"
             />
           </Link>
           <ul
-            className="hidden sm:flex ml-4"
+            className="hidden sm:flex"
             style={{
               gap: "30px",
               fontSize: "14px",
@@ -106,13 +124,43 @@ const Header = () => {
               </li>
             ))}
           </ul>
-          <div className="flex items-start md:gap-6 gap-4">
-            <ShinyBorder
-              text="FxS"
-              disabled={false}
-              speed={3}
-              className="font-bold"
+
+          {/* Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <FaUser
+              className={`w-5 h-5 mt-1 cursor-pointer ${
+                isDropdownOpen ? "text-white" : "text-white/50"
+              }`}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             />
+
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute z-50 -left-16 mt-4 w-40 py-3 px-4 bg-neutral-900 border border-neutral-800
+                  rounded-2xl shadow-lg"
+                >
+                  <Link
+                    href="/login"
+                    className="block py-3 px-2 text-sm text-white/50 hover:text-white rounded-lg transition-colors duration-200"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="block py-3 px-2 text-sm text-white/50 hover:text-white rounded-lg transition-colors duration-200"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Register
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

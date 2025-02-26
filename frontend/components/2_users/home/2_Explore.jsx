@@ -1,5 +1,5 @@
 import Image from "next/image";
-import ShinyText from "./button/ShinyText";
+import ShinyText from "../../button/ShinyText";
 import { FaDiscord, FaRobot, FaShieldAlt, FaUsersCog } from "react-icons/fa"; // Import icons yang diperlukan
 
 // Data untuk items

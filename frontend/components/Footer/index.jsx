@@ -2,13 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 // icons
 import { FaInstagram, FaGithub, FaDiscord, FaFacebook } from "react-icons/fa";
-import { FloatingDock } from "./ui/FloatingDock";
+import { FloatingDock } from "../ui/FloatingDock";
 
 const links = [
   { href: "/", name: "Home" },
   { href: "#about", name: "About" },
   { href: "#menu", name: "Menu" },
-  { href: "/contact", name: "Contact" },
+  { href: "/admin", name: "Contact" },
 ];
 
 const linksSocialMedia = [

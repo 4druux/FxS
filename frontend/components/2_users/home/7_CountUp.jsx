@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
-import TextCountUp from "./ui/TextCountUp.jsx";
-import ShinyText from "./button/ShinyText.jsx";
+import TextCountUp from "../../ui/TextCountUp.jsx";
+import ShinyText from "../../button/ShinyText.jsx";
 
 const CountUp = () => {
   const [isVisible, setIsVisible] = useState(false);

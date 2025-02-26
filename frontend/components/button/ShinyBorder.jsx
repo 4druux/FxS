@@ -4,15 +4,8 @@ const ShinyBorder = ({ text, disabled = false, speed = 5, className = "" }) => {
   return (
     <button
       className={`
-        relative px-6 py-2
-        border border-[#ffffff1a]
-        rounded-full
-        overflow-hidden
-        transition-all
-        duration-300
-        hover:border-[#ffffff33]
-        bg-[#00000033]
-        backdrop-blur-sm
+        relative px-6 py-2 border border-[#ffffff1a] rounded-full hover:border-[#ffffff33] bg-[#00000033] backdrop-blur-sm
+        overflow-hidden transition-all duration-300 
         ${className}
       `}
     >

@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { FaShoppingCart } from "react-icons/fa";
-import SpotlightCard from "./ui/SpotlightCard";
-import Separator from "./Separator";
-import ShinyText from "./button/ShinyText";
+import SpotlightCard from "../../ui/SpotlightCard";
+import Separator from "../../ui/Separator";
+import ShinyText from "../../button/ShinyText";
 
 const CardProduct = () => {
   const products = [

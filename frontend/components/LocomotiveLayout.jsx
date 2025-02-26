@@ -1,6 +1,5 @@
 "use client";
 import { useEffect } from "react";
-import "../components/Scrollbar/scroll.css";
 
 const LocomotiveLayout = ({ children }) => {
   useEffect(() => {

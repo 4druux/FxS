@@ -1,6 +1,5 @@
 "use client";
 import MagneticButton from "@/components/button/MagneticButton";
-import CreativeButton from "@/components/Creative";
 import PageTransition from "@/components/Curve";
 
 const ProjectsPage = () => {
@@ -13,7 +12,6 @@ const ProjectsPage = () => {
           </h1>
           <p className="text-gray-300">Discover my latest works</p>
         </div>
-        <CreativeButton label="OUR WORK" hoverLabel="EXPLORE" />
         <MagneticButton href="#">OUR WORK</MagneticButton>
       </div>
     </PageTransition>

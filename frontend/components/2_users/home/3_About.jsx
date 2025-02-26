@@ -3,12 +3,9 @@ import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import Image from "next/image";
-import Badge from "./Badge";
-import Separator from "./Separator";
-import LinkButton from "./button/LinkButton";
-import { Rocket } from "lucide-react";
-import ShinyText from "./button/ShinyText";
-import MagneticButton from "./button/MagneticButton";
+import Separator from "../../ui/Separator";
+import ShinyText from "../../button/ShinyText";
+import MagneticButton from "../../button/MagneticButton";
 
 const data = [
   {

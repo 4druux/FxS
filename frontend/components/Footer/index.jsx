@@ -45,7 +45,7 @@ const linksSocialMedia = [
 const Footer = () => {
   return (
     <div
-      className="relative h-[300px] bg-[#212121]"
+      className="relative h-[300px] bg-neutral-900"
       style={{ clipPath: "polygon(0% 0, 100% 0%, 100% 100%, 0 100%)" }}
     >
       {/* Overlay */}

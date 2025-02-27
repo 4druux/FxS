@@ -1,42 +1,43 @@
-"use client";
+import LinkButton from "@/components/button/LinkButton";
+import BlurText from "@/components/text/BlurText";
+import SplitText from "@/components/text/SplitText";
+import TrueFocus from "@/components/text/TrueFocus";
+import Separator from "@/components/ui/Separator";
+import { Spotlight } from "@/components/ui/Spotlight";
+import React from "react";
+import { IoMdQuote } from "react-icons/io";
 
-// import { WorldMap } from "./WorldMap";
-// import TextPressure from "./button/TextPressure";
-import TrueFocus from "../../button/TrueFocus";
-import LinkButton from "../../button/LinkButton";
-
-const Hero = () => {
+export function Hero() {
   return (
-    <section className="h-[100vh] xl:h-screen relative bg-[#121212]">
-      {}
-      <div className="bg-hero_overlay absolute w-full h-full z-10">
-        {/* world-map */}
-      </div>
-      {/* <div className="absolute top-0 left-0 w-full h-full z-0">
-        <WorldMap />
-      </div> */}
-      <div className="container mx-auto h-full flex flex-col xl:flex-row items-center z-30 relative">
-        {/* text */}
-        <div
-          data-scroll
-          data-scroll-speed="0.4"
-          className="flex-1 flex flex-col text-center justify-center items-center xl:pb-12 gap-10 h-full"
-        >
-          {/* Badge & H1 */}
-          {/*Text Pressure*/}
-          {/* <div className="flex flex-col items-center w-full md:w-3/4 lg:w-2/3">
-            <TextPressure
-              text="Welcome to FxS Store"
-              strokeColor="#ff0000"
-              minFontSize={48}
-              maxFontSize={120}
-              strokeWidth={1}
-              textColor="#b5b5b5a4"
-            />
-          </div> */}
-          <div className="lead font-light max-w-[300px] md:max-w-[430px] xl:max-w-[560px]">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#121212] antialiased bg-grid-white/[0.02] relative overflow-hidden px-4 py-8 md:px-8 md:py-16">
+      <Spotlight className="top-14 left-0 md:left-72 md:-top-40" fill="white" />
+
+      <div
+        data-scroll
+        data-scroll-speed="0.4"
+        className="relative z-10 w-full max-w-7xl"
+      >
+        <div className="text-center mb-8 md:mb-6">
+          <BlurText
+            text="FxS Store"
+            className="mb-2 text-4xl md:text-6xl font-bold tracking-widest text-neutral-50"
+            delay={200}
+            animateBy="words"
+            direction="bot"
+          />
+          <Separator />
+          <BlurText
+            text="The Future of Discord Automation Starts Here."
+            delay={200}
+            animateBy="words"
+            direction="bot"
+            className="text-md md:text-3xl mt-6 text-neutral-400"
+          />
+        </div>
+        <div className="flex flex-col items-center text-center">
+          <div className="mb-6 text-base md:text-lg lg:text-xl">
             <TrueFocus
-              sentence="The highes quality tools"
+              sentence="The highest quality tools"
               manualMode={false}
               blurAmount={5}
               borderColor="teal"
@@ -45,11 +46,9 @@ const Hero = () => {
             />
           </div>
 
-          <LinkButton href="/" text="Get Started" />
+          <LinkButton href="/" text="Get Started" className="z-10" />
         </div>
       </div>
-    </section>
+    </div>
   );
-};
-
-export default Hero;
+}

@@ -8,6 +8,7 @@ import { SiGmail } from "react-icons/si";
 import Separator from "@/components/ui/Separator";
 import PageTransition from "@/components/Curve";
 import { FaInfoCircle } from "react-icons/fa";
+import ShinyText from "@/components/text/ShinyText";
 
 const invalidUsernames = [
   "test",
@@ -199,7 +200,7 @@ const Register = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://ecommerce-backend-ebon-six.vercel.app/api/user/register", // Ganti URL jika perlu
+        "http://localhost:5000/api/user/register", // Ganti URL jika perlu
         { username, email, password }
       );
       if (response.data.message) {
@@ -223,7 +224,7 @@ const Register = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://ecommerce-backend-ebon-six.vercel.app/api/user/verify-otp", // Ganti URL jika perlu
+        "http://localhost:5000/api/user/verify-otp", // Ganti URL jika perlu
         { email, otp }
       );
       if (response.data.message) {
@@ -270,7 +271,7 @@ const Register = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "https://ecommerce-backend-ebon-six.vercel.app/api/user/resend-otp", // Ganti URL jika perlu
+        "http://localhost:5000/api/user/resend-otp", // Ganti URL jika perlu
         { email }
       );
       if (response.data.message) {
@@ -330,7 +331,7 @@ const Register = () => {
   // Bagian tampilan (JSX) - Perubahan pada Link dan navigasi
   if (isOtpSent && !isOtpVerified) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#121212] p-4">
         {isLoading && (
           <div
             className={`fixed inset-0  flex justify-center items-center z-50 transition-opacity duration-300 ease-in-out ${
@@ -346,19 +347,19 @@ const Register = () => {
         <Link href="/" className="mb-8 group">
           <img src={""} alt="Atlas Icon" className="w-32 sm:w-40 " />
         </Link>
-        <div className="w-[90%] sm:max-w-md p-8 bg-white shadow-xl rounded-xl transition-all duration-500 hover:shadow-2xl  border border-gray-100">
+        <div className="w-[90%] sm:max-w-md p-8 bg-neutral-900 shadow-xl rounded-xl transition-all duration-500 hover:shadow-2xl  border border-neutral-800">
           {/* Email Verification Header */}
           <div className="text-center mb-8">
-            <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <div className="bg-neutral-800 border border-neutral-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
               <SiGmail
                 alt="Verification"
                 className="w-9 h-9 object-contain text-[#EA4335] "
               />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
+            <h2 className="text-xl font-bold text-neutral-200 mb-2">
               Verify Your Email
             </h2>
-            <p className="text-gray-600">Weve sent a verification code to</p>
+            <p className="text-neutral-400">Weve sent a verification code to</p>
             <p className="text-blue-600 font-medium break-all">{email}</p>
           </div>
           {/* Error Message */}
@@ -383,7 +384,7 @@ const Register = () => {
           <div className="space-y-6">
             <div className="relative group">
               <input
-                className="w-full px-4 pt-6 pb-2 text-center text-2xl tracking-[1em] font-medium border-2 border-gray-300 rounded-lg shadow-sm   
+                className="w-full px-4 pt-6 pb-2 text-center text-2xl tracking-[1em] font-medium bg-neutral-900 border border-neutral-800 text-neutral-200 rounded-lg shadow-sm   
         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent   
         transition-all duration-300   
         placeholder-transparent   
@@ -402,7 +403,7 @@ const Register = () => {
               />
               <label
                 htmlFor="otp"
-                className={`absolute left-4 text-gray-500 transition-all duration-200 transform bg-white px-1   
+                className={`absolute left-4 text-neutral-200 transition-all duration-200 transform bg-neutral-900 px-1   
         ${otp ? "-top-2 text-xs text-blue-600" : "top-3 text-sm"}  
         group-hover:text-blue-500`}
                 style={{ pointerEvents: "none" }}
@@ -418,8 +419,8 @@ const Register = () => {
   flex items-center justify-center space-x-2 group  
   ${
     otp.length !== 6
-      ? "bg-gray-200 cursor-not-allowed text-gray-500"
-      : "bg-gray-900 text-white hover:bg-gray-800 transform hover:scale-[1.02] hover:shadow-lg"
+      ? "bg-neutral-900 cursor-not-allowed text-neutral-400 border border-neutral-800"
+      : "bg-neutral-800 text-white border border-neutral-700 transform hover:scale-[1.02] hover:shadow-lg"
   }`}
               disabled={otp.length !== 6}
             >
@@ -440,7 +441,9 @@ const Register = () => {
             </button>
             {/* Resend Section */}
             <div className="text-center space-y-4">
-              <p className="text-sm text-gray-600">Didnt receive the code?</p>
+              <p className="text-sm text-neutral-200">
+                Didnt receive the code?
+              </p>
               {resendTimer > 0 ? (
                 <div className="flex items-center justify-center space-x-2">
                   <svg
@@ -490,12 +493,11 @@ const Register = () => {
             </div>
           </div>
           {/* Back to Registration */}
-          <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+          <div className="mt-8 pt-6 border-t border-neutral-800 text-center">
             <button
               type="button"
-              className="text-gray-600 hover:text-gray-800 text-sm   
-      flex items-center justify-center space-x-2 mx-auto   
-      hover:bg-gray-100 px-4 py-2 rounded-full transition-colors"
+              className="text-neutral-400 hover:text-neutral-200 text-sm flex items-center justify-center space-x-2 mx-auto   
+              border border-neutral-900 hover:border-neutral-700 hover:bg-neutral-800 px-4 py-2 rounded-full transition-colors"
               onClick={() => {
                 // Reset logic
                 setIsOtpSent(false);
@@ -555,9 +557,11 @@ const Register = () => {
           shadow-xl rounded-xl transition-all duration-500 hover:shadow-2xl border border-neutral-800"
           >
             <div className="inline-flex flex-col space-y-2 items-center gap-2 mb-8">
-              <p className="prata-regular text-3xl text-neutral-200">
-                Register
-              </p>
+              <ShinyText
+                text="Register"
+                speed={3}
+                className="tracking-widest text-white/60 font-bold text-3xl"
+              />
               <Separator />
             </div>
             {errorMessage && (
@@ -723,8 +727,8 @@ const Register = () => {
   flex items-center justify-center space-x-2 group  
   ${
     !isPasswordStrong || !username || !email || !password || !confirmPassword
-      ? "bg-neutral-800 cursor-not-allowed text-neutral-200 border border-neutral-700"
-      : "bg-neutral-900 text-white border border-neutral-800 transform hover:scale-[1.02] hover:shadow-lg"
+      ? "bg-neutral-900 cursor-not-allowed text-neutral-400 border border-neutral-800"
+      : "bg-neutral-800 text-white border border-neutral-700 transform hover:scale-[1.02] hover:shadow-lg"
   }`}
               disabled={
                 !isPasswordStrong ||

@@ -6,6 +6,8 @@ import axios from "axios";
 import Image from "next/image";
 import Separator from "@/components/ui/Separator";
 import PageTransition from "@/components/Curve";
+import ShinyText from "@/components/text/ShinyText";
+import { ShopContext } from "@/context/ShopContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -13,10 +15,39 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { loginUser } = useContext(ShopContext);
+
+  const onSubmitHandler = async (event) => {
+    event.preventDefault();
+    setErrorMessage("");
+    setIsLoading(true);
+    try {
+      await loginUser(email, password);
+    } catch (error) {
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            setErrorMessage("Invalid email or password. Please try again.");
+            break;
+          case 403:
+            setErrorMessage(
+              "You don't have permission to access this account."
+            );
+            break;
+          default:
+            setErrorMessage("An error occurred. Please try again later.");
+        }
+      } else {
+        setErrorMessage("Network error. Please check your connection.");
+      }
+    } finally {
+      setIsLoading(false); // Set isLoading di sini
+    }
+  };
 
   useEffect(() => {
-    // Efek untuk mengontrol overflow body saat loading (opsional)
     if (isLoading) {
+      // Gunakan loading dari context
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -25,6 +56,10 @@ const Login = () => {
       document.body.style.overflow = "unset";
     };
   }, [isLoading]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <PageTransition backgroundColor="#083344">
@@ -36,7 +71,6 @@ const Login = () => {
             </div>
           )}
           <Link href="/" className="my-8">
-            {/* Gunakan komponen Image dari Next.js untuk optimasi gambar */}
             <Image
               alt="Atlas Icon"
               width={160} // Sesuaikan ukuran yang optimal
@@ -45,11 +79,16 @@ const Login = () => {
             />
           </Link>
           <form
+            onSubmit={onSubmitHandler} // Panggil onSubmitHandler
             className="flex flex-col items-center w-[90%] sm:max-w-md m-auto mt-14 gap-6 p-5 sm:p-8 bg-neutral-900 
       shadow-xl rounded-xl transition-all duration-500 hover:shadow-2xl border border-neutral-800"
           >
             <div className="inline-flex flex-col space-y-2 items-center gap-2 mb-8">
-              <p className="prata-regular text-3xl text-neutral-200">Login</p>
+              <ShinyText
+                text="Login"
+                speed={3}
+                className="tracking-widest text-white/60 font-bold text-3xl"
+              />
               <Separator />
             </div>
             {errorMessage && (
@@ -121,8 +160,8 @@ const Login = () => {
             flex items-center justify-center space-x-2 group font-normal  
             ${
               !email || !password
-                ? "bg-neutral-800 cursor-not-allowed text-neutral-200 border border-neutral-700"
-                : "bg-neutral-900 text-white border border-neutral-800 transform hover:scale-[1.02] hover:shadow-lg"
+                ? "bg-neutral-900 cursor-not-allowed text-neutral-400 border border-neutral-800"
+                : "bg-neutral-800 text-white border border-neutral-700 transform hover:scale-[1.02] hover:shadow-lg"
             }`}
             >
               <span>Sign In</span>

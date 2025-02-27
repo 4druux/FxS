@@ -16,23 +16,7 @@ module.exports = {
       lg: "960px",
       xl: "1430px",
     },
-    fontFamily: {
-      primary: "var(--font-cormorant_upright)",
-      secondary: "var(--font-open_Sans)",
-    },
     extend: {
-      colors: {
-        primary: {
-          DEFAULT: "#100e0e",
-        },
-        secondary: {
-          DEFAULT: "#787f8a",
-        },
-        accent: {
-          DEFAULT: "#c7a17a",
-          hover: "#a08161",
-        },
-      },
       keyframes: {
         shine: {
           "0%": { "background-position": "100%" },
@@ -47,11 +31,22 @@ module.exports = {
           "0%": { transform: "translateX(0%)" },
           "100%": { transform: "translateX(-20%)" },
         },
+        spotlight: {
+          "0%": {
+            opacity: 0,
+            transform: "translate(-72%, -62%) scale(0.5)",
+          },
+          "100%": {
+            opacity: 1,
+            transform: "translate(-50%,-40%) scale(1)",
+          },
+        },
       },
       animation: {
         shine: "shine 1s linear infinite",
         gradient: "gradient 8s linear infinite",
         marquee: "marquee 30s linear infinite",
+        spotlight: "spotlight 2s ease .75s 1 forwards",
       },
       backgroundImage: {
         hero: "url('/assets/hero/hero-overlay.png')",

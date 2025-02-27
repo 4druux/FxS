@@ -4,8 +4,9 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import Image from "next/image";
 import Separator from "../../ui/Separator";
-import ShinyText from "../../button/ShinyText";
+import ShinyText from "../../text/ShinyText";
 import MagneticButton from "../../button/MagneticButton";
+import BlurText from "@/components/text/BlurText";
 
 const data = [
   {
@@ -102,9 +103,13 @@ const About = () => {
                       {/* separator */}
                       <Separator />
                       {/* description */}
-                      <p className="text-neutral-400 text-md font-medium  px-8 xl:px-0">
-                        {item.description}
-                      </p>
+                      <BlurText
+                        text={item.description}
+                        delay={30}
+                        animateBy="words"
+                        direction="top"
+                        className="text-neutral-400 text-md font-medium  px-8 xl:px-0"
+                      />
                       {/* LinkButton menggantikan button biasa */}
 
                       <MagneticButton href={item.buttonProps.href}>

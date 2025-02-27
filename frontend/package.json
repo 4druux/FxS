@@ -1,5 +1,5 @@
 {
-  "name": "seankopi",
+  "name": "fxs-store",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,9 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-spring/web": "^9.7.5",
     "@tabler/icons-react": "^3.30.0",
     "axios": "^1.8.1",
     "clsx": "^2.1.1",
+    "coolshapes-react": "^1.0.1",
     "dotted-map": "^2.2.3",
     "framer-motion": "^11.3.21",
     "gsap": "^3.12.5",

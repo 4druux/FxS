@@ -2,19 +2,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion"; // Import motion
-import { useState, useEffect, useRef } from "react"; // Import useRef
-import ShinyText from "../button/ShinyText"; // Pastikan path benar
-import { FaUser } from "react-icons/fa";
-// import { assets } from "../assets/assets"; // Import assets jika diperlukan, dan pastikan path benar
+import { AnimatePresence, motion } from "framer-motion";
+import { useState, useEffect, useRef, useContext } from "react"; // Tambahkan useContext
+import ShinyText from "../text/ShinyText";
+import {
+  FaUser,
+  FaSignOutAlt,
+  FaUserCircle,
+  FaClipboardList,
+  FaSignInAlt,
+  FaUserPlus,
+} from "react-icons/fa"; // Import ikon yang relevan
+import { ShopContext } from "@/context/ShopContext"; // Import ShopContext
 
 const Header = () => {
   const [scrollY, setScrollY] = useState(0);
   const [navSize, setNavSize] = useState(1);
   const [isDynamic, setIsDynamic] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // State untuk dropdown
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const pathname = usePathname();
-  const dropdownRef = useRef(null); // Ref untuk dropdown
+  const dropdownRef = useRef(null);
+  const { isLoggedIn, logoutUser, user } = useContext(ShopContext); // Gunakan isLoggedIn, logoutUser, dan user dari context
 
   // Event listener untuk menutup dropdown saat klik di luar
   useEffect(() => {
@@ -23,9 +31,7 @@ const Header = () => {
         setIsDropdownOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -35,12 +41,10 @@ const Header = () => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       setScrollY(currentScrollY);
-
       let newSize = 1 - Math.min(currentScrollY / 300, 0.7);
       setNavSize(newSize);
       setIsDynamic(currentScrollY > 50);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -133,7 +137,6 @@ const Header = () => {
               }`}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             />
-
             <AnimatePresence>
               {isDropdownOpen && (
                 <motion.div
@@ -144,20 +147,55 @@ const Header = () => {
                   className="absolute z-50 -left-16 mt-4 w-40 py-3 px-4 bg-neutral-900 border border-neutral-800
                   rounded-2xl shadow-lg"
                 >
-                  <Link
-                    href="/login"
-                    className="block py-3 px-2 text-sm text-white/50 hover:text-white rounded-lg transition-colors duration-200"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="block py-3 px-2 text-sm text-white/50 hover:text-white rounded-lg transition-colors duration-200"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Register
-                  </Link>
+                  {isLoggedIn ? (
+                    <>
+                      <Link
+                        href="/profile"
+                        className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <FaUserCircle className="w-4 h-4" />
+                        My Profile
+                      </Link>
+                      <Link
+                        href="/orders"
+                        className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <FaClipboardList className="w-4 h-4" />
+                        My Orders
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logoutUser();
+                          setIsDropdownOpen(false);
+                        }}
+                        className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
+                      >
+                        <FaSignOutAlt className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <FaSignInAlt className="w-4 h-4" />
+                        Login
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        <FaUserPlus className="w-4 h-4" />
+                        Register
+                      </Link>
+                    </>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

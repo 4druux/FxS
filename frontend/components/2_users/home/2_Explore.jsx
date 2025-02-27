@@ -1,6 +1,7 @@
 import Image from "next/image";
-import ShinyText from "../../button/ShinyText";
+import ShinyText from "../../text/ShinyText";
 import { FaDiscord, FaRobot, FaShieldAlt, FaUsersCog } from "react-icons/fa"; // Import icons yang diperlukan
+import BlurText from "@/components/text/BlurText";
 
 // Data untuk items
 const exploreData = {
@@ -62,9 +63,13 @@ const Explore = () => {
                     speed={2}
                     className="tracking-widest text-2xl font-medium text-white/50 mb-2"
                   />
-                  <p className="max-w-[400px] text-neutral-400 text-md font-medium">
-                    {item.description}
-                  </p>
+                  <BlurText
+                    text={item.description}
+                    delay={50}
+                    animateBy="words"
+                    direction="top"
+                    className="max-w-[400px] text-neutral-400 text-md font-medium"
+                  />
                 </div>
               </div>
             ))}
@@ -106,9 +111,13 @@ const Explore = () => {
                     speed={2}
                     className="tracking-widest text-2xl font-medium text-white/50 mb-2"
                   />
-                  <p className="max-w-[400px] text-neutral-400 text-md font-medium">
-                    {item.description}
-                  </p>
+                  <BlurText
+                    text={item.description}
+                    delay={50}
+                    animateBy="words"
+                    direction="top"
+                    className="max-w-[400px] text-neutral-400 text-md font-medium"
+                  />
                 </div>
               </div>
             ))}

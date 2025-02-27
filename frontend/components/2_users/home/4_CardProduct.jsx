@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { FaShoppingCart } from "react-icons/fa";
 import SpotlightCard from "../../ui/SpotlightCard";
 import Separator from "../../ui/Separator";
-import ShinyText from "../../button/ShinyText";
+import ShinyText from "../../text/ShinyText";
 
 const CardProduct = () => {
   const products = [
@@ -75,7 +75,7 @@ const CardProduct = () => {
             speed={2}
             className="tracking-widest text-4xl font-bold text-white/50"
           />
-          <Separator bg="accent" />
+          <Separator />
           <p className="text-center max-w-[620px] mx-auto text-neutral-400 text-md font-medium">
             Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nobis, ad
             iste. Sunt assumenda aut illum dolorem repellat ut quos officia.

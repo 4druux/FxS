@@ -53,3 +53,54 @@
 button {
   transition: all 0.3s ease-out;
 }
+
+.elegant-popup {
+  background: #121212;
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+}
+
+/* Title Styling */
+.elegant-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #ececec;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* Message Styling */
+.elegant-message {
+  font-size: 18px;
+  color: #ececec;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.elegant-confirm-button {
+  background-color: #282828;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 12px 30px;
+  border: 1px solid #383838;
+  border-radius: 50px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.elegant-confirm-button:hover {
+  transform: translateY(-3px);
+}
+
+.elegant-confirm-button:active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 400px) {
+  .elegant-popup {
+    width: 85%;
+  }
+}

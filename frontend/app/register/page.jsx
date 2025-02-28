@@ -9,6 +9,7 @@ import Separator from "@/components/ui/Separator";
 import PageTransition from "@/components/Curve";
 import { FaInfoCircle } from "react-icons/fa";
 import ShinyText from "@/components/text/ShinyText";
+import SweetAlert from "@/components/ui/SweetAlert";
 
 const invalidUsernames = [
   "test",
@@ -224,7 +225,7 @@ const Register = () => {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/user/verify-otp", // Ganti URL jika perlu
+        "http://localhost:5000/api/user/verify-otp",
         { email, otp }
       );
       if (response.data.message) {
@@ -382,13 +383,11 @@ const Register = () => {
           )}
           {/* OTP Input Section */}
           <div className="space-y-6">
-            <div className="relative group">
+            <div className="relative">
               <input
-                className="w-full px-4 pt-6 pb-2 text-center text-2xl tracking-[1em] font-medium bg-neutral-900 border border-neutral-800 text-neutral-200 rounded-lg shadow-sm   
-        focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent   
-        transition-all duration-300   
-        placeholder-transparent   
-        group-hover:border-blue-300"
+                className="w-full px-4 pt-6 pb-2 text-center text-2xl tracking-[1em] font-medium bg-neutral-900 border 
+                border-neutral-800 text-neutral-200 rounded-lg shadow-sm focus:outline-none focus:ring-2 
+                focus:ring-blue-500 focus:border-transparent transition-all duration-300 placeholder-transparent"
                 type="text"
                 id="otp"
                 maxLength="6"
@@ -404,8 +403,7 @@ const Register = () => {
               <label
                 htmlFor="otp"
                 className={`absolute left-4 text-neutral-200 transition-all duration-200 transform bg-neutral-900 px-1   
-        ${otp ? "-top-2 text-xs text-blue-600" : "top-3 text-sm"}  
-        group-hover:text-blue-500`}
+        ${otp ? "-top-2 text-xs text-blue-600" : "top-3 text-sm"} `}
                 style={{ pointerEvents: "none" }}
               >
                 Enter 6-digit Code
@@ -465,7 +463,7 @@ const Register = () => {
               ) : (
                 <button
                   type="button"
-                  className={`text-blue-600 hover:text-blue-800 text-sm font-medium   
+                  className={`text-blue-500 hover:text-blue-600 text-sm font-medium   
           flex items-center justify-center space-x-2 mx-auto   
           ${resendAttempts >= 3 ? "opacity-50 cursor-not-allowed" : ""}`}
                   onClick={handleResendOtp}
@@ -497,7 +495,7 @@ const Register = () => {
             <button
               type="button"
               className="text-neutral-400 hover:text-neutral-200 text-sm flex items-center justify-center space-x-2 mx-auto   
-              border border-neutral-900 hover:border-neutral-700 hover:bg-neutral-800 px-4 py-2 rounded-full transition-colors"
+               rounded-full transition-colors"
               onClick={() => {
                 // Reset logic
                 setIsOtpSent(false);
@@ -764,7 +762,7 @@ const Register = () => {
                 </span>
                 <Link
                   href="/login"
-                  className="text-blue-300 hover:text-blue-500 cursor-pointer"
+                  className="text-blue-400 hover:text-blue-500 cursor-pointer"
                 >
                   {" Login Here"}
                 </Link>

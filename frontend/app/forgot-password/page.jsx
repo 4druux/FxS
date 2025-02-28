@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
 import Image from "next/image";
+import SweetAlert from "@/components/ui/SweetAlert";
 
 const assets = {
   forever_icon: "/forever_icon.png", //  Contoh path.  Sesuaikan!
@@ -125,11 +126,11 @@ const ForgotPassword = () => {
           />
         </Link>
         <form
-          className="w-[90%] sm:max-w-md p-8 bg-neutral-900 shadow-xl rounded-xl 
-        transition-all duration-500 hover:shadow-2xl  border border-neutral-800 "
+          className="flex flex-col items-center w-[90%] sm:max-w-md m-auto mt-14 gap-6 p-5 sm:p-8 bg-neutral-900 
+      shadow-xl rounded-xl transition-all duration-500 hover:shadow-2xl border border-neutral-800"
         >
           {/* Forgot Password Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 w-full">
             <div className="bg-neutral-800 border border-neutral-700 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -175,13 +176,13 @@ const ForgotPassword = () => {
             </div>
           )}
           {/* Email Input or Resend Section */}
-          <div className="space-y-6">
+          <div className="space-y-6 relative w-full">
             {!isEmailSent ? (
-              <div className="relative group">
+              <div className="relative">
                 <input
-                  className="w-full px-4 pt-6 pb-2 border-2 bg-neutral-900 border-neutral-800 text-neutral-200 rounded-lg shadow-sm   
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent   
-                transition-all duration-300 placeholder-transparent group-hover:border-blue-300"
+                  className="w-full px-4 pt-6 pb-2 border-2 bg-neutral-900 border-neutral-800 text-neutral-200 rounded-lg 
+                  shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent   
+                  transition-all duration-300 placeholder-transparent"
                   type="email"
                   id="email"
                   placeholder=" "
@@ -191,8 +192,7 @@ const ForgotPassword = () => {
                 <label
                   htmlFor="email"
                   className={`absolute left-4 text-neutral-200 transition-all duration-200 transform bg-neutral-900 px-1   
-                ${email ? "-top-2 text-xs text-blue-600" : "top-3 text-sm"}  
-                group-hover:text-blue-500`}
+                ${email ? "-top-2 text-xs text-blue-600" : "top-3 text-sm"}`}
                   style={{ pointerEvents: "none" }}
                 >
                   Email Address
@@ -204,7 +204,7 @@ const ForgotPassword = () => {
               type="button"
               onClick={!isEmailSent ? sendResetLinkHandler : () => {}}
               className={`w-full py-3 px-4 rounded-full transition-all duration-300   
-            flex items-center justify-center space-x-2 group  
+            flex items-center justify-center space-x-2 group
             ${
               !isEmailSent
                 ? email
@@ -232,12 +232,12 @@ const ForgotPassword = () => {
             {/* Resend Section */}
             {isEmailSent && (
               <div className="text-center space-y-4">
-                <p className="text-sm text-gray-600">Didnt receive the link?</p>
+                <p className="text-sm text-neutral-400">Didnt receive the link?</p>
                 {resendTimer > 0 ? (
                   <div className="flex items-center justify-center space-x-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 text-gray-500"
+                      className="h-5 w-5 text-neutral-200"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
@@ -247,14 +247,14 @@ const ForgotPassword = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-neutral-200">
                       Resend available in {resendTimer} seconds
                     </p>
                   </div>
                 ) : (
                   <button
                     type="button"
-                    className={`text-blue-600 hover:text-blue-800 text-sm font-medium   
+                    className={`text-blue-500 hover:text-blue-600 text-sm font-medium   
                   flex items-center justify-center space-x-2 mx-auto   
                   ${
                     resendAttempts >= 3 ? "opacity-50 cursor-not-allowed" : ""
@@ -285,11 +285,11 @@ const ForgotPassword = () => {
             )}
           </div>
           {/* Back to Login */}
-          <div className="mt-8 pt-6 border-t border-neutral-800 text-center">
+          <div className="mt-8 pt-6 border-t border-neutral-800 text-center w-full">
             <Link
               href="/login"
               className="text-neutral-400 hover:text-neutral-200 text-sm flex items-center justify-center space-x-2 mx-auto   
-            border border-neutral-900 hover:border-neutral-700 hover:bg-neutral-800 px-4 py-2 rounded-full transition-colors"
+               rounded-full transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -143,13 +143,13 @@ const Login = () => {
             <div className="w-full flex justify-between text-sm sm:text-xs">
               <Link
                 href="/forgot-password"
-                className="text-blue-300 hover:text-blue-500"
+                className="text-blue-500 hover:text-blue-600"
               >
                 Forgot your password?
               </Link>
               <Link
                 href="/register"
-                className="text-blue-300 hover:text-blue-500"
+                className="text-blue-500 hover:text-blue-600"
               >
                 Create account
               </Link>

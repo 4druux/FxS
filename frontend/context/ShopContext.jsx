@@ -44,7 +44,7 @@ export const ShopProvider = ({ children }) => {
   const loginUser = async (email, password) => {
     // setLoading(true); // Hapus setLoading dari sini
     try {
-      const response = await axios.post("http://localhost:5000/api/login", {
+      const response = await axios.post("http://localhost:5000/api/user/login", {
         email,
         password,
       });

@@ -88,7 +88,7 @@ const Header = () => {
         }}
       >
         <div className="flex items-center justify-between h-full">
-          <Link href="/">
+          <Link href="/" prefetch>
             <ShinyText
               text="FxS"
               disabled={false}
@@ -110,6 +110,7 @@ const Header = () => {
                 )}
                 <Link
                   href={link.path}
+                  prefetch
                   className={`relative group p-1 ${
                     pathname === link.path
                       ? "text-white"
@@ -151,6 +152,7 @@ const Header = () => {
                     <>
                       <Link
                         href="/profile"
+                        prefetch
                         className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
                         onClick={() => setIsDropdownOpen(false)}
                       >
@@ -159,6 +161,7 @@ const Header = () => {
                       </Link>
                       <Link
                         href="/orders"
+                        prefetch
                         className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
                         onClick={() => setIsDropdownOpen(false)}
                       >
@@ -180,6 +183,7 @@ const Header = () => {
                     <>
                       <Link
                         href="/login"
+                        prefetch
                         className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
                         onClick={() => setIsDropdownOpen(false)}
                       >
@@ -188,6 +192,7 @@ const Header = () => {
                       </Link>
                       <Link
                         href="/register"
+                        prefetch
                         className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
                         onClick={() => setIsDropdownOpen(false)}
                       >

@@ -3,7 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState, useEffect, useRef, useContext } from "react"; // Tambahkan useContext
+import { ShopContext } from "@/context/ShopContext";
+import { useState, useEffect, useRef, useContext } from "react";
 import ShinyText from "../text/ShinyText";
 import {
   FaUser,
@@ -12,8 +13,7 @@ import {
   FaClipboardList,
   FaSignInAlt,
   FaUserPlus,
-} from "react-icons/fa"; // Import ikon yang relevan
-import { ShopContext } from "@/context/ShopContext"; // Import ShopContext
+} from "react-icons/fa";
 
 const Header = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -22,9 +22,8 @@ const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef(null);
-  const { isLoggedIn, logoutUser, user } = useContext(ShopContext); // Gunakan isLoggedIn, logoutUser, dan user dari context
+  const { isLoggedIn, user, logoutUser } = useContext(ShopContext);
 
-  // Event listener untuk menutup dropdown saat klik di luar
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

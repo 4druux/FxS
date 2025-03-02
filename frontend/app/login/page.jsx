@@ -2,7 +2,6 @@
 "use client";
 import React, { useState, useContext, useEffect } from "react";
 import Link from "next/link";
-import axios from "axios";
 import Image from "next/image";
 import Separator from "@/components/ui/Separator";
 import PageTransition from "@/components/Curve";

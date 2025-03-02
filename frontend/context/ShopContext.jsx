@@ -1,106 +1,99 @@
-// context/ShopContext.js
-"use client";
-import React, { createContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
 
 export const ShopContext = createContext();
 
 export const ShopProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Ganti loading dengan isLoggedIn
+  const [isManualLogout, setIsManualLogout] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  // Fungsi untuk memeriksa token tersimpan dan memuat data pengguna
-  const loadUserFromStorage = useCallback(async () => {
-    const storedToken = localStorage.getItem("authToken");
-    const userRole = localStorage.getItem("userRole");
-    const tokenExpiration = localStorage.getItem("tokenExpiration");
-
-    if (
-      storedToken &&
-      tokenExpiration &&
-      new Date().getTime() < +tokenExpiration
-    ) {
-      setToken(storedToken);
-      setUser({ role: userRole });
-      setIsLoggedIn(true); // Set isLoggedIn menjadi true
-    } else {
-      // Hapus data jika token tidak valid atau expired
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("userRole");
-      localStorage.removeItem("tokenExpiration");
-      setIsLoggedIn(false); // Set isLoggedIn menjadi false
-    }
-  }, []);
-
-  // Load user saat context pertama kali dimuat
   useEffect(() => {
-    loadUserFromStorage();
-  }, [loadUserFromStorage]);
+    const token = Cookies.get("authToken");
+    const role = Cookies.get("userRole");
 
-  // Fungsi login
+    if (token && role) {
+      setUser({ role });
+      setIsLoggedIn(true);
+    } else {
+      setUser(null);
+      setIsLoggedIn(false);
+    }
+
+    const reason = searchParams.get("reason");
+
+    if (!token && reason === "session_expired") {
+      toast.error("Session expired. Please login again.");
+    }
+  }, [pathname, searchParams]);
+
+  // Reset manualLogout setiap user sampai di halaman login
+  useEffect(() => {
+    if (pathname === "/login") {
+      setIsManualLogout(false);
+    }
+  }, [pathname]);
+
   const loginUser = async (email, password) => {
-    // setLoading(true); // Hapus setLoading dari sini
     try {
-      const response = await axios.post("http://localhost:5000/api/user/login", {
-        email,
-        password,
-      });
-
-      if (response.data.token) {
-        const { token, role, expiresIn } = response.data;
-        const expirationTime = new Date().getTime() + expiresIn * 1000;
-
-        localStorage.setItem("authToken", token);
-        localStorage.setItem("userRole", role);
-        localStorage.setItem("tokenExpiration", expirationTime);
-
-        setToken(token);
-        setUser({ role });
-        setIsLoggedIn(true); // Set isLoggedIn menjadi true
-
-        // Redirect berdasarkan role
-        if (role === "admin") {
-          router.push("/admin/dashboard");
-        } else {
-          router.push("/");
+      const response = await axios.post(
+        "http://localhost:5000/api/user/login",
+        {
+          email,
+          password,
         }
+      );
+
+      const { token, role, expiresIn } = response.data;
+      const expirationTime = new Date().getTime() + expiresIn * 1000;
+
+      Cookies.set("authToken", token, { path: "/" });
+      Cookies.set("userRole", role, { path: "/" });
+      Cookies.set("tokenExpiration", expirationTime.toString(), { path: "/" });
+
+      setUser({ role });
+      setIsLoggedIn(true);
+
+      toast.success(
+        `Login successful! Welcome, ${role === "admin" ? "Admin" : "User"}.`
+      );
+
+      if (role === "admin") {
+        router.replace("/admin/dashboard");
+      } else {
+        router.replace("/");
       }
-      return response;
     } catch (error) {
-      console.error("Login error:", error);
-      throw error;
-    } finally {
-      // setLoading(false); // Hapus setLoading dari sini
+      toast.error(
+        error.response?.data?.message || "Login failed. Please try again."
+      );
     }
   };
 
-  // Fungsi logout
   const logoutUser = () => {
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("tokenExpiration");
-    setToken(null);
+    setIsManualLogout(true);
+    Cookies.remove("authToken");
+    Cookies.remove("userRole");
+    Cookies.remove("tokenExpiration");
+
     setUser(null);
-    setIsLoggedIn(false); // Set isLoggedIn menjadi false
-    router.push("/login");
-  };
+    setIsLoggedIn(false);
 
-  // Fungsi untuk memeriksa apakah pengguna adalah admin
-  const isAdmin = user?.role === "admin";
-
-  const contextValue = {
-    user,
-    token,
-    isLoggedIn, // Ganti loading dengan isLoggedIn
-    loginUser,
-    logoutUser,
-    isAdmin,
+    toast.success("Logout successful!");
+    router.replace("/login");
   };
 
   return (
-    <ShopContext.Provider value={contextValue}>{children}</ShopContext.Provider>
+    <ShopContext.Provider
+      value={{ user, isLoggedIn, loginUser, logoutUser, isManualLogout }}
+    >
+      {children}
+    </ShopContext.Provider>
   );
 };

@@ -8,6 +8,7 @@ const validRoutes = [
   "/projects",
   "/contact",
   "/admin",
+  "/admin/dashboard",
   "/login",
   "/forgot-password",
   "/register",

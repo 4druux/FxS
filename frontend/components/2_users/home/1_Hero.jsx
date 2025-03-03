@@ -9,8 +9,18 @@ import { IoMdQuote } from "react-icons/io";
 
 export function Hero() {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#121212] antialiased bg-grid-white/[0.02] relative overflow-hidden px-4 py-8 md:px-8 md:py-16">
-      <Spotlight className="top-14 left-0 md:left-72 md:-top-40" fill="white" />
+    <div
+      className="relative min-h-screen w-full flex flex-col items-center justify-center antialiased bg-cover bg-center bg-no-repeat overflow-hidden px-4 py-8 md:px-8 md:py-16"
+      style={{ backgroundImage: "url('/assets/bg-dark.jpg')" }}
+    >
+      {/* Overlay redup */}
+      <div className="absolute inset-0 bg-black/70 z-0" />
+
+      {/* Konten di atasnya */}
+      <Spotlight
+        className="top-14 left-0 md:left-72 md:-top-40 z-10"
+        fill="white"
+      />
 
       <div
         data-scroll

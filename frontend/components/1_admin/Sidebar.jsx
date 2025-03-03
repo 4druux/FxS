@@ -9,7 +9,7 @@ export default function Sidebar({ isOpen, setIsSidebarOpen }) {
 
   const menuItems = [
     { href: "/admin/dashboard", icon: HomeIcon, label: "Dashboard" },
-    { href: "/admin/dashboard/users", icon: PlusIcon, label: "Add Product" },
+    { href: "/admin/dashboard/add-product", icon: PlusIcon, label: "Add Product" },
     {
       href: "/admin/dashboard/list",
       icon: ClipboardListIcon,

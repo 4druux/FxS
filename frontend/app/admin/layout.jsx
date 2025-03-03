@@ -60,7 +60,7 @@ export default function AdminLayout({ children }) {
   return (
     <div className="flex">
       <Sidebar isOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <div className="flex-1 transition-all duration-500 bg-neutral-900">
+      <div className="flex-1 transition-all duration-500 bg-[#121212]">
         {/* Navbar */}
         <div className="flex justify-between items-center p-4 shadow-sm bg-neutral-900 border-b border-neutral-800 fixed top-0 left-0 right-0 z-10">
           <button onClick={toggleSidebar} className="cursor-pointer">
@@ -105,7 +105,7 @@ export default function AdminLayout({ children }) {
         </div>
 
         {/* Konten Utama */}
-        <div className="pt-16 mt-9 md:mt-16 px-4 sm:px-[6vw] md:px-[9vw] lg:px-[10vw] h-screen">
+        <div className="pt-16 mt-9 md:mt-16 px-4 sm:px-[6vw] md:px-[9vw] lg:px-[10vw]">
           {children}
         </div>
       </div>

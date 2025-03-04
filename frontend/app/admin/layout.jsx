@@ -1,3 +1,4 @@
+// app\admin\layout.jsx
 "use client";
 import { useState, useEffect, useRef, useContext } from "react";
 import Sidebar from "@/components/1_admin/Sidebar";
@@ -7,25 +8,25 @@ import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 import { BiMenuAltLeft } from "react-icons/bi";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const { isLoggedIn, user, logoutUser, isManualLogout } =
+  const { isLoggedIn, user, isSessionChecked, logoutUser } =
     useContext(ShopContext);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoggedIn || user?.role !== "admin") {
-      if (!isManualLogout) {
-        toast.error("Session expired. Please login again.");
-      }
+    if (!isSessionChecked) return;
+
+    if (!isLoggedIn) {
       router.replace("/login");
+    } else if (user?.role !== "admin") {
+      router.replace("/unauthorized");
     }
-  }, [isLoggedIn, user, isManualLogout, router]);
+  }, [isSessionChecked, isLoggedIn, user, router]);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -52,9 +53,20 @@ export default function AdminLayout({ children }) {
     };
   }, [dropdownRef]);
 
-  // ⛔️ Render kosong saat belum lolos guard biar gak sempat render apapun
-  if (!isLoggedIn || user?.role !== "admin") {
-    return null; // optional bisa juga tampilkan loader/redirect
+  if (!isSessionChecked) {
+    return (
+      <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
+      </div>
+    );
+  }
+
+  if (isSessionChecked && (!isLoggedIn || user?.role !== "admin")) {
+    return (
+      <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
+      </div>
+    );
   }
 
   return (

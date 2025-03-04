@@ -7,6 +7,7 @@ import Separator from "@/components/ui/Separator";
 import PageTransition from "@/components/Curve";
 import ShinyText from "@/components/text/ShinyText";
 import { ShopContext } from "@/context/ShopContext";
+import { useSearchParams } from "next/navigation";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,6 +16,14 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { loginUser } = useContext(ShopContext);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const reason = searchParams.get("reason");
+    if (reason === "session_expired") {
+      toast.error("Your session has expired. Please login again.");
+    }
+  }, [searchParams]);
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();

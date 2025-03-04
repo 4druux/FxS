@@ -1,8 +1,11 @@
 "use client";
 import MagneticButton from "@/components/button/MagneticButton";
 import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 
 export default function NotFound() {
+  const pathname = usePathname(); // Dapetin URL yang user ketik
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#121212] text-white">
       <motion.div
@@ -35,8 +38,10 @@ export default function NotFound() {
           transition={{ duration: 0.6, delay: 0.7 }}
           className="mt-4 text-neutral-400"
         >
-          The page you are looking for may not be available. But don't worry,
-          you can always return to the homepage.
+          The page{" "}
+          <span className="text-white tracking-wider">"{pathname}"</span> you are
+          looking for may not be available. But don't worry, you can always
+          return to the homepage.
         </motion.p>
 
         <motion.div

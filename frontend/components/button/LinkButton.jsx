@@ -18,13 +18,11 @@ const LinkButton = ({
         border-b-2 border-b-teal-600 border-r-2 border-r-teal-600 hover:border-teal-600 
         transition-all duration-500 flex items-center gap-3 overflow-hidden group hover:scale-[1.02] ${className}`}
     >
-      <span className="text-white/80 hover:text-white font-medium relative z-10">
-        {text}
-      </span>
+      <span className="font-medium relative z-10">{text}</span>
       {/* Render icon hanya jika showIcon true */}
       {showIcon && (
         <div className="relative z-10 transition-transform duration-300 group-hover:rotate-45">
-          <Icon className="w-5 h-5 text-white/80 hover:text-white" />
+          <Icon className="w-5 h-5" />
         </div>
       )}
       <div

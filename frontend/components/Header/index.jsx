@@ -149,10 +149,15 @@ const Header = () => {
                 >
                   {isLoggedIn ? (
                     <>
+                      {/* Hi, username! */}
+                      <div className="text-sm text-white/70 px-2 pb-2 border-b border-neutral-700">
+                        Hi, {user?.username || "User"}!
+                      </div>
+
                       <Link
                         href="/profile"
                         prefetch
-                        className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200"
+                        className="flex items-start gap-2 py-2 px-2 text-sm text-white/70 hover:text-white rounded-lg transition-colors duration-200 mt-2"
                         onClick={() => setIsDropdownOpen(false)}
                       >
                         <FaUserCircle className="w-4 h-4" />

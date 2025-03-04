@@ -31,7 +31,7 @@ const MagneticButton = forwardRef((props, ref) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className="relative inline-flex items-center justify-center px-12 py-4 m-4 text-sm font-medium tracking-wider text-white 
-                 bg-teal-950 border border-teal-600 rounded-full overflow-hidden transition-all duration-700 ease-in-out 
+                 bg-teal-900/20 border border-teal-600 rounded-full overflow-hidden transition-all duration-700 ease-in-out 
                  cursor-pointer group hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
     >
       <span className="relative z-10">

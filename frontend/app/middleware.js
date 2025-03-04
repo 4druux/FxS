@@ -2,20 +2,18 @@ import { NextResponse } from "next/server";
 
 export function middleware(request) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("authToken");
+  const authToken = request.cookies.get("authToken");
+  const userRole = request.cookies.get("userRole");
 
-  const isProtectedRoute = pathname.startsWith("/admin/dashboard");
-
-  // Kalau masuk halaman admin/dashboard tanpa token = redirect + kasih reason expired
-  if (isProtectedRoute && !token) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("reason", "session_expired");
-    return NextResponse.redirect(loginUrl);
+  if (pathname.startsWith("/admin")) {
+    if (!authToken || userRole?.value !== "admin") {
+      // User belum login atau bukan admin
+      return NextResponse.redirect(new URL("/unauthorized", request.url));
+    }
   }
-
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*"], // Proteksi semua di bawah /admin
+  matcher: ["/admin/:path*"],
 };

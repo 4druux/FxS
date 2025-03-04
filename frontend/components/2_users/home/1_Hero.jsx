@@ -56,7 +56,7 @@ export function Hero() {
             />
           </div>
 
-          <LinkButton href="/" text="Get Started" className="z-10" />
+          <LinkButton href="/" text="Get Started" className="z-10 text-white" />
         </div>
       </div>
     </div>

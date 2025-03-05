@@ -7,26 +7,13 @@ import { ShopContext } from "@/context/ShopContext";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 import { BiMenuAltLeft } from "react-icons/bi";
-import { useRouter } from "next/navigation";
 
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const { isLoggedIn, user, isSessionChecked, logoutUser } =
-    useContext(ShopContext);
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!isSessionChecked) return;
-
-    if (!isLoggedIn) {
-      router.replace("/login");
-    } else if (user?.role !== "admin") {
-      router.replace("/unauthorized");
-    }
-  }, [isSessionChecked, isLoggedIn, user, router]);
+  const { logoutUser } = useContext(ShopContext);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
@@ -52,22 +39,6 @@ export default function AdminLayout({ children }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownRef]);
-
-  if (!isSessionChecked) {
-    return (
-      <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
-      </div>
-    );
-  }
-
-  if (isSessionChecked && (!isLoggedIn || user?.role !== "admin")) {
-    return (
-      <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex">

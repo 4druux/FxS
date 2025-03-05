@@ -7,7 +7,6 @@ import Separator from "@/components/ui/Separator";
 import PageTransition from "@/components/Curve";
 import ShinyText from "@/components/text/ShinyText";
 import { ShopContext } from "@/context/ShopContext";
-import { useSearchParams } from "next/navigation";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,14 +15,6 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { loginUser } = useContext(ShopContext);
-  const searchParams = useSearchParams();
-
-  useEffect(() => {
-    const reason = searchParams.get("reason");
-    if (reason === "session_expired") {
-      toast.error("Your session has expired. Please login again.");
-    }
-  }, [searchParams]);
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
@@ -49,13 +40,12 @@ const Login = () => {
         setErrorMessage("Network error. Please check your connection.");
       }
     } finally {
-      setIsLoading(false); // Set isLoading di sini
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     if (isLoading) {
-      // Gunakan loading dari context
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "unset";
@@ -74,8 +64,8 @@ const Login = () => {
       <div className="min-h-screen bg-[#121212]">
         <div className="flex flex-col items-center justify-center min-h-screen">
           {isLoading && (
-            <div className="fixed inset-0 bg-black/30 flex justify-center items-center z-50 transition-opacity duration-300 ease-in-out">
-              <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-t-4 border-t-white border-r-transparent border-b-white border-l-transparent rounded-full text-white"></div>
+            <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
             </div>
           )}
           <Link href="/" className="my-8">
@@ -112,7 +102,7 @@ const Login = () => {
                 placeholder=" "
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required // Tambahkan atribut required
+                required
               />
               <label
                 htmlFor="email"

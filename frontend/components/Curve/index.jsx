@@ -12,6 +12,8 @@ const routes = {
   "/contact": "Contact",
   "/login": "Login",
   "/register": "Register",
+  "/profile": "My Profile",
+  "/orders": "My Orders",
 };
 
 const animationProps = (variants) => ({

@@ -12,6 +12,7 @@ const validRoutes = [
   "/login",
   "/forgot-password",
   "/register",
+  "/orders",
 ];
 
 export default function useIsNotFound() {

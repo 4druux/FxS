@@ -66,7 +66,7 @@ export default function AddProductPage() {
               type="text"
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-double focus:outline-neutral-500
+              className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500
               placeholder-neutral-500 placeholder:text-xs"
               placeholder="Your product name"
             />
@@ -95,7 +95,7 @@ export default function AddProductPage() {
               type="number"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-double focus:outline-neutral-500
+              className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500
               placeholder-neutral-500 placeholder:text-xs"
               placeholder="Your product price"
             />

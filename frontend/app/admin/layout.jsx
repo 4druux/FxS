@@ -41,7 +41,7 @@ export default function AdminLayout({ children }) {
   }, [dropdownRef]);
 
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
       <Sidebar isOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
       <div className="flex-1 transition-all duration-500 bg-[#121212]">
         {/* Navbar */}

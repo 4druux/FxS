@@ -1,6 +1,6 @@
 // File: createUser.js
 const mongoose = require("mongoose");
-const User = require("./User"); // Sesuaikan path jika file User.js ada di folder lain
+const User = require("./models/User"); // Sesuaikan path jika file User.js ada di folder lain
 require("dotenv").config();
 
 async function createUser() {

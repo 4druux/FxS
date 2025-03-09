@@ -1,3 +1,4 @@
+// ModalCrop.jsx (Corrected)
 import { getCroppedImg } from "@/lib/cropImage";
 import { XIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -10,7 +11,7 @@ export default function ModalCrop({ mediaSrc, onCropComplete, onClose }) {
   const [mediaType, setMediaType] = useState("image"); // default image
 
   useEffect(() => {
-    const ext = mediaSrc.split(".").pop().toLowerCase();
+    const ext = mediaSrc.split(";")[0].split(":")[1].split("/")[1]; // Get extension from base64 data URL
     if (["mp4", "webm", "ogg"].includes(ext)) {
       setMediaType("video");
     } else {
@@ -33,7 +34,6 @@ export default function ModalCrop({ mediaSrc, onCropComplete, onClose }) {
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = "100%";
-
     return () => {
       // Unlock scroll saat modal ditutup
       const scrollY = parseInt(document.body.style.top || "0", 10) * -1;
@@ -57,13 +57,13 @@ export default function ModalCrop({ mediaSrc, onCropComplete, onClose }) {
             Crop {mediaType === "video" ? "Video Frame" : "Image"} (16:9)
           </span>
           <button
+            type="button" // Add type="button" here
             onClick={onClose}
             className="p-2 rounded-full hover:bg-neutral-800 transition-colors group"
           >
             <XIcon className="w-6 h-6 text-neutral-600 group-hover:text-neutral-400" />
           </button>
         </div>
-
         <div className="relative w-full h-[300px] bg-black/50">
           {mediaType === "image" && (
             <Cropper
@@ -82,15 +82,16 @@ export default function ModalCrop({ mediaSrc, onCropComplete, onClose }) {
             </div>
           )}
         </div>
-
         <div className="p-4 border-t border-neutral-700 flex justify-end gap-2">
           <button
+            type="button" // Add type="button" here
             onClick={onClose}
             className="px-4 py-2 text-sm border border-neutral-700 text-neutral-400 hover:text-white hover:bg-neutral-800 hover:border-neutral-600 rounded-full"
           >
             Cancel
           </button>
           <button
+            type="button" // Add type="button" here
             onClick={handleSave}
             className="px-4 py-2 text-sm border bg-neutral-800 border-neutral-700 text-neutral-400 hover:text-white hover:bg-neutral-800 hover:border-neutral-600 rounded-full"
           >

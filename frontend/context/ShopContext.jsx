@@ -112,6 +112,27 @@ export const ShopProvider = ({ children }) => {
     router.replace("/login");
   };
 
+  // edit-product.jsx
+  const fetchProductsById = async (productId) => {
+    const existingProduct = products.find(
+      (product) => product._id === productId
+    );
+
+    if (!existingProduct) {
+      return null;
+    }
+
+    try {
+      const response = await axios.get(
+        `http://localhost:5000/api/product/${id}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch product details", error);
+      return null;
+    }
+  };
+
   return (
     <ShopContext.Provider
       value={{
@@ -120,6 +141,7 @@ export const ShopProvider = ({ children }) => {
         isSessionChecked,
         loginUser,
         logoutUser,
+        fetchProductsById,
       }}
     >
       {children}

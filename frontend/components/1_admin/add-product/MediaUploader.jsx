@@ -1,3 +1,4 @@
+// MediaUploader.jsx (Corrected)
 "use client";
 import { useEffect, useState } from "react";
 import { Trash2, UploadCloud, Plus, Pencil } from "lucide-react";
@@ -8,33 +9,45 @@ import "swiper/css/pagination";
 import ModalCrop from "../modalCrop";
 
 export default function MediaUploader({ mediaFiles, setMediaFiles }) {
-  if (!mediaFiles) setMediaFiles([]); // Default state saat pertama kali
+  // Initialize mediaFiles to an empty array if it's undefined or null
+  const [internalMediaFiles, setInternalMediaFiles] = useState(
+    mediaFiles || []
+  );
 
   const [previewURLs, setPreviewURLs] = useState([]);
   const [croppingIndex, setCroppingIndex] = useState(null);
   const [cropSource, setCropSource] = useState(null);
 
+  // Use internalMediaFiles for local state management
   useEffect(() => {
-    const urls = mediaFiles.map((file) =>
+    const urls = internalMediaFiles.map((file) =>
       file?.cropped ? URL.createObjectURL(file.cropped) : ""
     );
     setPreviewURLs(urls);
-
+    console.log("MediaFiles updated in MediaUploader:", internalMediaFiles);
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
-  }, [mediaFiles]);
+  }, [internalMediaFiles]);
 
-  // Tambah slot kosong
+  // Update the parent component's state whenever internalMediaFiles changes
+  useEffect(() => {
+    setMediaFiles(internalMediaFiles);
+  }, [internalMediaFiles, setMediaFiles]);
+
+  // Add slot kosong
   const handleAddImage = () => {
-    if (mediaFiles.length < 5) {
-      setMediaFiles([...mediaFiles, { original: null, cropped: null }]);
+    if (internalMediaFiles.length < 5) {
+      setInternalMediaFiles([
+        ...internalMediaFiles,
+        { original: null, cropped: null },
+      ]);
     }
   };
 
   // Hapus file
   const handleRemoveImage = (index) => {
-    const updatedFiles = [...mediaFiles];
+    const updatedFiles = [...internalMediaFiles];
     updatedFiles.splice(index, 1);
-    setMediaFiles(updatedFiles);
+    setInternalMediaFiles(updatedFiles);
   };
 
   // Ketika upload file baru
@@ -44,10 +57,9 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
 
     const reader = new FileReader();
     reader.onload = () => {
-      const updatedFiles = [...mediaFiles];
+      const updatedFiles = [...internalMediaFiles];
       updatedFiles[index] = { original: file, cropped: null };
-      setMediaFiles(updatedFiles);
-
+      setInternalMediaFiles(updatedFiles);
       setCropSource(reader.result); // Kirim ke modal crop pakai original
       setCroppingIndex(index);
     };
@@ -56,19 +68,20 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
 
   // Handle crop selesai
   const handleCropComplete = (croppedFile) => {
-    const updatedFiles = [...mediaFiles];
+    console.log("Crop selesai, update mediaFiles");
+    const updatedFiles = [...internalMediaFiles];
     updatedFiles[croppingIndex] = {
       ...updatedFiles[croppingIndex],
       cropped: croppedFile, // Simpan hasil crop
     };
-    setMediaFiles(updatedFiles);
+    setInternalMediaFiles(updatedFiles);
     setCroppingIndex(null);
     setCropSource(null);
   };
 
   // Edit ulang (reset ke original)
   const handleEditImage = (index) => {
-    const file = mediaFiles[index]?.original;
+    const file = internalMediaFiles[index]?.original;
     if (!file) return;
 
     const reader = new FileReader();
@@ -90,7 +103,7 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
           modules={[Pagination]}
           className="w-full"
         >
-          {mediaFiles.map((file, index) => (
+          {internalMediaFiles.map((file, index) => (
             <SwiperSlide key={index}>
               <div className="relative h-[300px] rounded-xl bg-neutral-800 flex justify-center items-center">
                 {file ? (
@@ -115,7 +128,7 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
                 {file && (
                   <div className="absolute inset-0 flex justify-center items-center bg-black/50 opacity-0 hover:opacity-100">
                     <button
-                      type="button"
+                      type="button" // VERY IMPORTANT: Prevent form submission
                       onClick={() => handleRemoveImage(index)}
                     >
                       <Trash2 className="text-neutral-400 w-8 h-8" />
@@ -125,7 +138,7 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
               </div>
             </SwiperSlide>
           ))}
-          {mediaFiles.length < 5 && (
+          {internalMediaFiles.length < 5 && (
             <SwiperSlide>
               <div className="h-[300px] flex items-center justify-center rounded-xl border-2 border-dashed border-neutral-600">
                 <button type="button" onClick={handleAddImage}>
@@ -136,10 +149,9 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
           )}
         </Swiper>
       </div>
-
       {/* Desktop Grid */}
       <div className="hidden sm:flex flex-wrap gap-4">
-        {mediaFiles.map((fileObj, index) => (
+        {internalMediaFiles.map((fileObj, index) => (
           <div
             key={index}
             className={`relative w-32 h-32 rounded-xl flex justify-center items-center group ${
@@ -156,12 +168,15 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
                 />
                 <div className="absolute inset-0 flex justify-center items-center gap-2 rounded-xl bg-black/50 opacity-0 group-hover:opacity-100">
                   <button
-                    type="button"
+                    type="button" // VERY IMPORTANT: Prevent form submission
                     onClick={() => handleRemoveImage(index)}
                   >
                     <Trash2 className="w-8 h-8 text-white p-1 rounded-full hover:bg-neutral-600" />
                   </button>
-                  <button type="button" onClick={() => handleEditImage(index)}>
+                  <button
+                    type="button" // VERY IMPORTANT: Prevent form submission
+                    onClick={() => handleEditImage(index)}
+                  >
                     <Pencil className="w-8 h-8 text-white p-1 rounded-full hover:bg-neutral-600" />
                   </button>
                 </div>
@@ -182,8 +197,7 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
             )}
           </div>
         ))}
-
-        {mediaFiles.length < 5 && (
+        {internalMediaFiles.length < 5 && (
           <div className="w-32 h-32 border-2 border-dashed border-neutral-700 hover:border-neutral-500 rounded-xl flex justify-center items-center group">
             <button type="button" onClick={handleAddImage}>
               <Plus className="w-6 h-6 text-neutral-400 group-hover:text-neutral-200" />
@@ -191,7 +205,6 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
           </div>
         )}
       </div>
-
       {cropSource && (
         <ModalCrop
           mediaSrc={cropSource}

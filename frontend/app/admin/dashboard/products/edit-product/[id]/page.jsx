@@ -1,20 +1,24 @@
-// AddProductPage.jsx
+// EditProductPage.jsx
 "use client";
-
 import MediaUploader from "@/components/1_admin/add-product/MediaUploader";
+import { ArrowLeftRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-
-export default function AddProductPage() {
+import { useParams, useRouter } from "next/navigation";
+export default function EditProductPage() {
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
   const [priceUSD, setPriceUSD] = useState("");
   const [priceIDR, setPriceIDR] = useState("");
   const [exchangeRate, setExchangeRate] = useState(null);
   const [loadingRate, setLoadingRate] = useState(true);
+  const [loadingProduct, setLoadingProduct] = useState(true);
+  const [initialProductData, setInitialProductData] = useState(null);
   const [error, setError] = useState(null);
   const [mediaFiles, setMediaFiles] = useState([]);
+  const { id } = useParams();
+  const router = useRouter();
 
   const fetchExchangeRate = useCallback(async () => {
     setLoadingRate(true);
@@ -40,12 +44,70 @@ export default function AddProductPage() {
     }
   }, []);
 
+  // Fetch product data
+  const fetchProductData = useCallback(async () => {
+    setLoadingProduct(true);
+    setError(null);
+    try {
+      const response = await fetch(`http://localhost:5000/api/product/${id}`);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch product: ${response.status}`);
+      }
+      const productData = await response.json();
+
+      setInitialProductData(productData); // Simpan data awal untuk perbandingan
+      setProductName(productData.name);
+      setDescription(productData.description);
+      setPriceUSD(productData.priceUSD);
+      setPriceIDR(
+        `Rp ${parseInt(productData.priceIDR).toLocaleString("id-ID", {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        })}`
+      );
+
+      const initialMediaFiles = await Promise.all(
+        productData.media.map(async (mediaItem) => {
+          const blob = await fetch(
+            `data:${mediaItem.contentType};base64,${mediaItem.data}`
+          ).then((res) => res.blob());
+          const file = new File(
+            [blob],
+            `image.${mediaItem.contentType.split("/")[1]}`,
+            { type: mediaItem.contentType }
+          );
+          return { original: file, cropped: file };
+        })
+      );
+      setMediaFiles(initialMediaFiles);
+    } catch (err) {
+      setError(err.message || "Failed to fetch product.");
+      console.error("Product fetch error:", err);
+    } finally {
+      setLoadingProduct(false);
+    }
+  }, [id]);
+
+  // Fungsi untuk memeriksa apakah ada perubahan pada form
+  const hasChanges = () => {
+    if (!initialProductData) return false;
+    return (
+      productName.trim() !== initialProductData.name ||
+      description.trim() !== initialProductData.description ||
+      parseFloat(priceUSD) !== parseFloat(initialProductData.priceUSD) ||
+      String(priceIDR).replace(/[^0-9]/g, "") !==
+        String(initialProductData.priceIDR).replace(/[^0-9]/g, "") ||
+      mediaFiles.length !== initialProductData.media.length
+    );
+  };
+
   useEffect(() => {
     fetchExchangeRate();
-  }, [fetchExchangeRate]);
+    fetchProductData();
+  }, [fetchExchangeRate, fetchProductData]);
+
   const convertUsdToIdr = useCallback(() => {
     if (exchangeRate === null) return;
-
     const numericUSD = parseFloat(priceUSD) || 0;
     if (isNaN(numericUSD)) {
       setPriceIDR("");
@@ -66,9 +128,7 @@ export default function AddProductPage() {
 
   const handlePriceChange = useCallback((e) => {
     let value = e.target.value;
-
     value = value.replace(/[^0-9.]/g, "");
-
     const parts = value.split(".");
     if (parts.length > 2) {
       value = parts[0] + "." + parts.slice(1).join("");
@@ -76,13 +136,11 @@ export default function AddProductPage() {
     if (parts[1]?.length > 2) {
       value = parts[0] + "." + parts[1].slice(0, 2);
     }
-
     setPriceUSD(value);
   }, []);
 
   const formatPriceUSD = useCallback(() => {
     if (!priceUSD) return "$ 0.00";
-
     const numericValue = parseFloat(priceUSD);
     if (isNaN(numericValue)) {
       return "$ 0.00";
@@ -98,62 +156,81 @@ export default function AddProductPage() {
     return numericUSD >= 0.01;
   };
 
+  const convertFileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const mediaBase64 = await Promise.all(
+        mediaFiles.map(async (file) => {
+          // Use cropped if available, otherwise use original
+          const fileToConvert = file.cropped || file.original;
+          const base64Data = await convertFileToBase64(fileToConvert);
+          return {
+            data: base64Data.split(",")[1],
+            contentType: fileToConvert.type,
+          };
+        })
+      );
+
+      const productData = {
+        name: productName,
+        description,
+        priceUSD,
+        priceIDR: priceIDR.replace(/[^0-9]/g, ""), // Remove non-numeric characters
+        media: mediaBase64,
+      };
+
+      const response = await fetch(
+        `http://localhost:5000/api/product/${id}`, // Use PUT or PATCH for updates
+        {
+          method: "PUT", // Or PATCH, depending on your API
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(productData),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update product.");
+      }
+
+      alert("Product updated successfully!");
+      router.push("/admin/dashboard/products"); // Redirect using useRouter
+    } catch (error) {
+      console.error("Error updating product:", error);
+      alert(`Failed to update product: ${error.message}`);
+    }
+  };
+
+  // Pastikan tombol hanya aktif jika form lengkap dan ada perubahan
   const isFormComplete =
     productName.trim() !== "" &&
     description.trim() !== "" &&
     isPriceValid() &&
     mediaFiles.length > 0 &&
-    exchangeRate !== null;
+    exchangeRate !== null &&
+    hasChanges();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("name", productName);
-    formData.append("description", description);
-    formData.append("priceUSD", priceUSD);
-    formData.append("priceIDR", priceIDR.replace(/[^0-9]/g, ""));
-    mediaFiles.forEach((file, index) => {
-      if (file) formData.append(`media_${index}`, file);
-    });
-
-    console.log("Sending:", Object.fromEntries(formData));
-
-    try {
-      const response = await fetch("/api/your-add-product-endpoint", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          `Server error: ${response.status} - ${
-            errorData.message || "Unknown error"
-          }`
-        );
-      }
-
-      const responseData = await response.json();
-      console.log("Product added successfully:", responseData);
-      alert("Product added successfully!");
-      window.location.href = "/admin/products";
-    } catch (error) {
-      console.error("Error adding product:", error);
-      alert(`Failed to add product: ${error.message}`);
-    }
-  };
-
-  if (loadingRate) {
-    return <div>Loading exchange rates...</div>;
+  // Loading and error handling
+  if (loadingRate || loadingProduct) {
+    return <div className="text-white">Loading...</div>;
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className="text-red-500">Error: {error}</div>;
   }
 
   return (
     <div className="text-neutral-200">
-      <h1 className="text-2xl font-bold mb-4">Add Product</h1>
+      <h1 className="text-2xl font-bold mb-4">Edit Product</h1>
       <form
         onSubmit={handleSubmit}
         className="bg-neutral-900 border border-neutral-800 p-4 sm:p-6 rounded-xl"
@@ -194,36 +271,41 @@ export default function AddProductPage() {
               />
             </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-400">
-              Price (USD){" "}
-              <span className="text-xs text-neutral-200">
-                {formatPriceUSD()}
-              </span>
-            </label>
-            <input
-              type="text"
-              value={priceUSD}
-              onChange={handlePriceChange}
-              className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
-              placeholder="Your product price in USD"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-neutral-400">
-              Price (IDR)
-            </label>
-            <input
-              type="text"
-              value={priceIDR}
-              readOnly
-              className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
-            />
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <div className="flex-1 w-full">
+              <label className="block text-sm font-medium text-neutral-400">
+                Price (USD){" "}
+                <span className="text-xs text-neutral-200">
+                  {formatPriceUSD()}
+                </span>
+              </label>
+              <input
+                type="text"
+                value={priceUSD}
+                onChange={handlePriceChange}
+                className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
+                placeholder="Your product price in USD"
+              />
+            </div>
+            <div className="mt-0 md:mt-4">
+              <ArrowLeftRight size={16} className="text-neutral-500" />
+            </div>
+            <div className="flex-1 w-full">
+              <label className="block text-sm font-medium text-neutral-400">
+                Price (IDR)
+              </label>
+              <input
+                type="text"
+                value={priceIDR}
+                readOnly
+                className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
+              />
+            </div>
           </div>
           <div className="col-span-2 flex justify-end space-x-2 sm:space-x-4 mt-4">
             <button
               type="button"
-              onClick={() => window.history.back()}
+              onClick={() => router.back()}
               className="px-6 py-2 text-sm sm:text-md sm:py-3 rounded-full border border-neutral-700 text-neutral-400 hover:text-white hover:bg-neutral-800 hover:border-neutral-600 hover:scale-[1.01] transition"
             >
               Back
@@ -237,7 +319,7 @@ export default function AddProductPage() {
                   : "bg-neutral-700 text-neutral-500 cursor-not-allowed"
               }`}
             >
-              Add Product
+              Update Product
             </button>
           </div>
         </div>

@@ -6,7 +6,7 @@ import { AnimatePresence } from "framer-motion";
 import Header from "@/components/Header";
 import LocomotiveLayout from "@/components/LocomotiveLayout";
 import Footer from "@/components/Footer";
-import { ShopProvider } from "@/context/ShopContext";
+import { AuthProvider } from "@/context/AuthContext";
 import useIsNotFound from "@/hooks/useIsNotFound";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,7 +27,7 @@ export default function ClientLayout({ children }) {
 
   return (
     <>
-      <ShopProvider>
+      <AuthProvider>
         <ToastContainer
           position="top-right"
           autoClose={5000}
@@ -47,7 +47,7 @@ export default function ClientLayout({ children }) {
           </LocomotiveLayout>
         </AnimatePresence>
         {!isAdminPage && !isNotFound && <Footer />}
-      </ShopProvider>
+      </AuthProvider>
     </>
   );
 }

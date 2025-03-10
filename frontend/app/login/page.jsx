@@ -6,7 +6,7 @@ import Image from "next/image";
 import Separator from "@/components/ui/Separator";
 import PageTransition from "@/components/Curve";
 import ShinyText from "@/components/text/ShinyText";
-import { ShopContext } from "@/context/ShopContext";
+import { AuthContext } from "@/context/AuthContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { loginUser } = useContext(ShopContext);
+  const { loginUser } = useContext(AuthContext);
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();

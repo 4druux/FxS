@@ -3,23 +3,29 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import Sidebar from "@/components/1_admin/Sidebar";
 import { AnimatePresence, motion } from "framer-motion";
-import { ShopContext } from "@/context/ShopContext";
+import { AuthContext } from "@/context/AuthContext";
 import { FaSignOutAlt, FaUser } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
 import { BiMenuAltLeft } from "react-icons/bi";
+import { usePathname } from "next/navigation";
 
 export default function AdminLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const pathname = usePathname();
 
-  const { logoutUser } = useContext(ShopContext);
+  const { logoutUser } = useContext(AuthContext);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   const handleLogout = () => {
     logoutUser();
   };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   useEffect(() => {
     document.body.style.overflow = isSidebarOpen ? "hidden" : "auto";

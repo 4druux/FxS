@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { HomeIcon, PlusIcon, ClipboardListIcon, XIcon } from "lucide-react";
+import { HomeIcon, ClipboardListIcon, XIcon, ShoppingBag } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export default function Sidebar({ isOpen, setIsSidebarOpen }) {
@@ -10,14 +10,14 @@ export default function Sidebar({ isOpen, setIsSidebarOpen }) {
   const menuItems = [
     { href: "/admin/dashboard", icon: HomeIcon, label: "Dashboard" },
     {
-      href: "/admin/dashboard/products/add-product",
-      icon: PlusIcon,
-      label: "Add Product",
-    },
-    {
       href: "/admin/dashboard/products",
       icon: ClipboardListIcon,
       label: "Products Management",
+    },
+    {
+      href: "/admin/dashboard/orders",
+      icon: ShoppingBag,
+      label: "Orders Management",
     },
   ];
 

@@ -6,6 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useParams, useRouter } from "next/navigation";
+
 export default function EditProductPage() {
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
@@ -55,7 +56,7 @@ export default function EditProductPage() {
       }
       const productData = await response.json();
 
-      setInitialProductData(productData); // Simpan data awal untuk perbandingan
+      setInitialProductData(productData);
       setProductName(productData.name);
       setDescription(productData.description);
       setPriceUSD(productData.priceUSD);
@@ -170,7 +171,6 @@ export default function EditProductPage() {
     try {
       const mediaBase64 = await Promise.all(
         mediaFiles.map(async (file) => {
-          // Use cropped if available, otherwise use original
           const fileToConvert = file.cropped || file.original;
           const base64Data = await convertFileToBase64(fileToConvert);
           return {
@@ -184,18 +184,15 @@ export default function EditProductPage() {
         name: productName,
         description,
         priceUSD,
-        priceIDR: priceIDR.replace(/[^0-9]/g, ""), // Remove non-numeric characters
+        priceIDR: priceIDR.replace(/[^0-9]/g, ""),
         media: mediaBase64,
       };
 
-      const response = await fetch(
-        `http://localhost:5000/api/product/${id}`, // Use PUT or PATCH for updates
-        {
-          method: "PUT", // Or PATCH, depending on your API
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(productData),
-        }
-      );
+      const response = await fetch(`http://localhost:5000/api/product/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -203,14 +200,13 @@ export default function EditProductPage() {
       }
 
       alert("Product updated successfully!");
-      router.push("/admin/dashboard/products"); // Redirect using useRouter
+      router.push("/admin/dashboard/products");
     } catch (error) {
       console.error("Error updating product:", error);
       alert(`Failed to update product: ${error.message}`);
     }
   };
 
-  // Pastikan tombol hanya aktif jika form lengkap dan ada perubahan
   const isFormComplete =
     productName.trim() !== "" &&
     description.trim() !== "" &&
@@ -219,9 +215,12 @@ export default function EditProductPage() {
     exchangeRate !== null &&
     hasChanges();
 
-  // Loading and error handling
   if (loadingRate || loadingProduct) {
-    return <div className="text-white">Loading...</div>;
+    return (
+      <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
+      </div>
+    );
   }
 
   if (error) {

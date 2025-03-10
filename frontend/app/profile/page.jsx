@@ -2,13 +2,13 @@
 
 import { useContext, useState } from "react";
 import PageTransition from "@/components/Curve";
-import { ShopContext } from "@/context/ShopContext";
+import { AuthContext } from "@/context/AuthContext";
 import { IoIosArrowBack, IoMdLock, IoMdMail } from "react-icons/io";
 import { toast } from "react-toastify";
 import ShinyText from "@/components/Text/ShinyText";
 
 export default function ProfilePage() {
-  const { user } = useContext(ShopContext);
+  const { user } = useContext(AuthContext);
 
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");

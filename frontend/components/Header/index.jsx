@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { ShopContext } from "@/context/ShopContext";
+import { AuthContext } from "@/context/AuthContext";
 import { useState, useEffect, useRef, useContext } from "react";
 import ShinyText from "../text/ShinyText";
 import {
@@ -22,7 +22,7 @@ const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const pathname = usePathname();
   const dropdownRef = useRef(null);
-  const { isLoggedIn, user, logoutUser } = useContext(ShopContext);
+  const { isLoggedIn, user, logoutUser } = useContext(AuthContext);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

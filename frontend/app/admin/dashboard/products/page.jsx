@@ -12,6 +12,7 @@ import {
   SquarePen,
   ClipboardList,
   Trash2,
+  Plus,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactPaginate from "react-paginate";
@@ -249,8 +250,8 @@ function AllProductsPage() {
   // --- JSX Rendering ---
   if (loading)
     return (
-      <div className="p-4 bg-[#121212] min-h-screen flex justify-center items-center">
-        Loading products...
+      <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
       </div>
     );
   if (error)
@@ -261,103 +262,113 @@ function AllProductsPage() {
     );
 
   return (
-    <div className="p-4 bg-[#121212] min-h-screen text-neutral-200">
+    <div className="bg-[#121212] min-h-screen text-neutral-200">
       {/* Header and Search */}
-      <div className="sm:mb-12 mb-4 flex flex-col sm:flex-row justify-between sm:gap-0 gap-3 text-2xl">
-        <h1 className="text-2xl font-bold mb-4">Product Management</h1>
-        <AnimatePresence>
-          {showSearch && (
-            <motion.div
-              className="w-full sm:w-auto border border-neutral-700 px-3 py-2 rounded-full"
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-            >
-              <div className="flex items-center pt-2 w-full sm:w-[300px] h-5">
-                <motion.div
-                  className="flex items-center flex-grow h-full"
-                  variants={inputVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                >
-                  <input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full outline-none bg-inherit text-sm text-neutral-200 placeholder:text-neutral-600"
-                    type="text"
-                    placeholder="Search products..."
-                  />
-                  {search && (
-                    <button
-                      onClick={handleClearSearch}
-                      className="p-2 mr-1 rounded-full hover:bg-neutral-800 transition-colors group"
-                    >
-                      <X
-                        className="w-5 text-neutral-600 group-hover:text-neutral-400"
-                        alt="Clear search"
-                      />
-                    </button>
-                  )}
-                </motion.div>
-                <div className="border-l-2 border-neutral-700 pl-2">
-                  <Search
-                    className="w-5 text-neutral-600 cursor-pointer"
-                    alt="Search"
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      <h1 className="sm:mb-12 mb-4 text-2xl font-bold">Product Management</h1>
 
       {/*  Sort */}
-      <div className="flex justify-end items-center mb-6 space-x-4">
-        {/* Sort Dropdown */}
-        <div className="relative" ref={dropdownSortRef}>
-          <motion.div
-            onClick={() => setIsDropdownSortOpen(!isDropdownSortOpen)}
-            whileTap={{ scale: 0.95 }}
-            className="border rounded-full bg-neutral-900 border-neutral-800 px-4 py-2 space-x-2 cursor-pointer flex items-center justify-between transition-all duration-300 ease-in-out"
-          >
-            <span
-              className={`text-sm ${
-                isDropdownSortOpen ? "text-neutral-200" : "text-neutral-500"
-              }`}
-            >
-              {sortOptions.find((option) => option.value === sortType)?.label ||
-                "Sort"}
-            </span>
+      <div className="flex flex-col-reverse gap-4 md:gap-0 md:flex-row justify-end items-end md:items-center mb-6 space-x-4">
+        <button
+          onClick={() => router.push("/admin/dashboard/products/add-product")}
+          className="flex items-center space-x-1 px-4 py-2 border rounded-full bg-neutral-900 border-neutral-700 hover:border-neutral-500 transition-colors group"
+        >
+          <Plus className="text-neutral-500 group-hover:text-neutral-300 w-4 md:w-5" />
+          <span className="text-xs md:text-sm mt-1 text-neutral-500 group-hover:text-neutral-300">
+            Add Product
+          </span>
+        </button>
+        <div className="flex space-x-4">
+          {/* Sort Dropdown */}
+          <div className="relative" ref={dropdownSortRef}>
             <motion.div
-              animate={{ rotate: isDropdownSortOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
+              onClick={() => setIsDropdownSortOpen(!isDropdownSortOpen)}
+              whileTap={{ scale: 0.95 }}
+              className="border rounded-full bg-neutral-900 border-neutral-700 hover:border-neutral-500 px-4 py-2 space-x-2 cursor-pointer flex items-center justify-between transition-all duration-300 ease-in-out"
             >
-              <ChevronDown className="w-4 h-4 text-neutral-400" />
-            </motion.div>
-          </motion.div>
-          <AnimatePresence>
-            {isDropdownSortOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className="absolute z-50 right-0 mt-2 w-40 py-2 bg-neutral-900 border border-neutral-800 rounded-2xl shadow-lg"
+              <span
+                className={`text-xs md:text-sm ${
+                  isDropdownSortOpen ? "text-neutral-200" : "text-neutral-500"
+                }`}
               >
-                {sortOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => {
-                      handleSortChange(option.value);
-                      setIsDropdownSortOpen(false);
-                    }}
-                    className="block w-full text-left px-4 py-2 text-sm text-neutral-400 hover:text-neutral-200 transition-colors duration-200"
+                {sortOptions.find((option) => option.value === sortType)
+                  ?.label || "Sort"}
+              </span>
+              <motion.div
+                animate={{ rotate: isDropdownSortOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ChevronDown className="w-4 h-4 text-neutral-400" />
+              </motion.div>
+            </motion.div>
+            <AnimatePresence>
+              {isDropdownSortOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute z-50 -left-4 mt-2 w-36 py-2 bg-neutral-900 border border-neutral-700 rounded-2xl shadow-lg"
+                >
+                  {sortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        handleSortChange(option.value);
+                        setIsDropdownSortOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm text-neutral-400 hover:text-neutral-200 transition-colors duration-200"
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <AnimatePresence>
+            {showSearch && (
+              <motion.div
+                className="w-full sm:w-auto border bg-neutral-900 border-neutral-700 hover:border-neutral-500 px-3 py-2 rounded-full"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+              >
+                <div className="flex items-center w-full sm:w-[300px] h-5">
+                  <motion.div
+                    className="flex items-center flex-grow h-full"
+                    variants={inputVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
                   >
-                    {option.label}
-                  </button>
-                ))}
+                    <input
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      className="w-full text-xs md:text-sm outline-none bg-inherit text-neutral-200 placeholder:text-neutral-600"
+                      type="text"
+                      placeholder="Search products..."
+                    />
+                    {search && (
+                      <button
+                        onClick={handleClearSearch}
+                        className="p-2 mr-1 rounded-full hover:bg-neutral-800 transition-colors group"
+                      >
+                        <X
+                          className="w-5 text-neutral-600 group-hover:text-neutral-400"
+                          alt="Clear search"
+                        />
+                      </button>
+                    )}
+                  </motion.div>
+                  <div className="border-l-2 border-neutral-700 pl-2">
+                    <Search
+                      className="w-5 text-neutral-600 cursor-pointer"
+                      alt="Search"
+                    />
+                  </div>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -370,8 +381,8 @@ function AllProductsPage() {
           currentProducts.map((product) => (
             <div
               key={product._id}
-              className="relative group bg-neutral-900 rounded-2xl shadow-md border border-neutral-800 overflow-hidden transform transition-all duration-300
-              hover:shadow-xl hover:border hover:border-neutral-600"
+              className="relative group bg-neutral-900 rounded-2xl shadow-md border border-neutral-700 overflow-hidden transform transition-all duration-300
+              hover:shadow-xl hover:border hover:border-neutral-500"
             >
               {/* Image and Category */}
               <div className="relative overflow-hidden">
@@ -404,7 +415,7 @@ function AllProductsPage() {
                         <h3 className="text-neutral-200 text-xs sm:text-sm font-medium">
                           Price (USD):
                         </h3>
-                        <span className="text-green-500 font-bold text-xs sm:text-sm">
+                        <span className="text-neutral-300 font-bold text-xs sm:text-sm">
                           ${formatPriceUSD(product.priceUSD || 0)}
                         </span>
                       </div>
@@ -412,12 +423,9 @@ function AllProductsPage() {
                         <h3 className="text-neutral-200 text-xs sm:text-sm font-medium">
                           Price (IDR):
                         </h3>
-                        <span className="text-xs sm:text-sm text-neutral-400">
+                        <span className="text-xs sm:text-sm text-neutral-300">
                           Rp{formatPriceIDR(product.priceIDR || 0)}
                         </span>
-                      </div>
-                      <div className="text-xs sm:text-sm text-neutral-400">
-                        Stock: {product.stock || 0}
                       </div>
                     </div>
                   </div>
@@ -461,7 +469,7 @@ function AllProductsPage() {
 
       {/* Pagination */}
       {!search && currentProducts.length > 0 && (
-        <div className="flex justify-center my-8">
+        <div className="flex justify-center my-8 md:mt-14">
           <ReactPaginate
             previousLabel={
               <div className="flex items-center space-x-2">

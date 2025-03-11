@@ -1,6 +1,6 @@
+// AllProductsPage.jsx
 "use client";
-
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -17,52 +17,51 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import ReactPaginate from "react-paginate";
 import SweetAlert from "@/components/ui/SweetAlert";
+import { ShopContext } from "@/context/ShopContext"; // Import ShopContext
 
 function AllProductsPage() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // --- Context ---
+  const {
+    products,
+    productsError,
+    fetchProducts,
+    deleteProduct,
+    exchangeRate,
+  } = useContext(ShopContext); // Removed exchangeRateTrend
   const router = useRouter();
 
-  // Search and Sort States
+  // --- State ---
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(true);
   const [isDropdownSortOpen, setIsDropdownSortOpen] = useState(false);
   const [sortType, setSortType] = useState("date-desc");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true); // Start with loading true
   const [isOverlay, setIsOverlay] = useState(false);
-  const [deleteProductId, setDeleteProductId] = useState(null);
 
   // Pagination States
   const [currentPage, setCurrentPage] = useState(0);
   const productsPerPage = 10;
 
-  // Refs
+  // --- Refs ---
   const dropdownSortRef = useRef(null);
 
-  // --- Data Fetching ---
+  // --- Data Fetching (using context) ---
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
+    const fetchData = async () => {
+      // setIsLoading(true); // No longer needed here, set in initial state
       try {
-        const response = await fetch("http://localhost:5000/api/product");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setProducts(data);
+        await fetchProducts();
       } catch (error) {
-        setError(error.message);
-        console.error("Error fetching products:", error);
+        console.error("Error fetching products in component:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
-    fetchProducts();
-  }, []);
+    fetchData();
+  }, [fetchProducts]);
 
-  // --- Animation Variants (Framer Motion) ---
+  // --- Animation Variants (Framer Motion) --- (No changes here)
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: {
@@ -72,7 +71,6 @@ function AllProductsPage() {
     },
     exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } },
   };
-
   const inputVariants = {
     hidden: { width: 0, opacity: 0 },
     visible: {
@@ -83,33 +81,13 @@ function AllProductsPage() {
     exit: { width: 0, opacity: 0, transition: { duration: 0.2 } },
   };
 
-  const dropdownVariants = {
-    hidden: { y: -10, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.2, ease: "easeInOut" },
-    },
-    exit: { y: -10, opacity: 0, transition: { duration: 0.1 } },
-  };
-
-  // --- Event Handlers ---
+  // --- Event Handlers --- (No changes here)
   const handleClearSearch = () => {
     setSearch("");
   };
-
+  
   const handleEdit = (productId) => {
     router.push(`/admin/dashboard/products/edit-product/${productId}`);
-  };
-
-  const openDeleteModal = (productId) => {
-    setDeleteProductId(productId);
-    setIsOverlay(true);
-  };
-
-  const closeDeleteModal = () => {
-    setDeleteProductId(null);
-    setIsOverlay(false);
   };
 
   const handleDelete = async (id) => {
@@ -123,17 +101,7 @@ function AllProductsPage() {
     if (confirmed) {
       setIsDeleting(true);
       try {
-        const response = await fetch(
-          `http://localhost:5000/api/product/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
-        if (!response.ok) {
-          throw new Error("Failed to delete product");
-        }
-        setProducts(products.filter((product) => product._id !== id));
-
+        await deleteProduct(id); // Use deleteProduct from context
         setIsOverlay(true);
         await SweetAlert({
           title: "Success",
@@ -160,7 +128,6 @@ function AllProductsPage() {
     } else {
       document.body.style.overflow = "unset";
     }
-
     return () => {
       document.body.style.overflow = "unset";
     };
@@ -169,14 +136,14 @@ function AllProductsPage() {
   const handleSortChange = (newSortType) => {
     setSortType(newSortType);
     setIsDropdownSortOpen(false);
-    setCurrentPage(0);
+    setCurrentPage(0); // Reset to the first page on sort change
   };
 
   const handlePageClick = (data) => {
     setCurrentPage(data.selected);
   };
 
-  // --- Computed Values ---
+  // --- Computed Values --- (No changes here)
   // 1. Apply Search Filtering
   const filteredProducts = products.filter((product) => {
     return product.name.toLowerCase().includes(search.toLowerCase());
@@ -203,7 +170,7 @@ function AllProductsPage() {
     offset + productsPerPage
   );
 
-  // --- Options ---
+  // --- Options --- (No changes here)
   const sortOptions = [
     {
       value: "date-desc",
@@ -224,14 +191,16 @@ function AllProductsPage() {
   ];
 
   const formatPriceIDR = (price) => {
-    return price.toLocaleString("id-ID");
+    if (exchangeRate === null) {
+      return "Loading..."; // Or some other placeholder
+    }
+    return (price * exchangeRate).toLocaleString("id-ID");
   };
-
   const formatPriceUSD = (price) => {
     return price.toFixed(2);
   };
 
-  // --- Close dropdown when clicking outside ---
+  // --- Close dropdown when clicking outside --- (No changes here)
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -247,20 +216,24 @@ function AllProductsPage() {
     };
   }, []);
 
-  // --- JSX Rendering ---
-  if (loading)
+  // --- JSX Rendering --- (MAJOR CHANGES HERE)
+  if (isLoading) {
     return (
       <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
       </div>
     );
-  if (error)
+  }
+
+  if (productsError) {
     return (
       <div className="p-4 bg-[#121212] min-h-screen flex justify-center items-center text-red-500">
-        Error: {error}
+        Error: {productsError}
       </div>
     );
+  }
 
+  // If not loading and no error, render the content
   return (
     <div className="bg-[#121212] min-h-screen text-neutral-200">
       {/* Header and Search */}
@@ -277,16 +250,18 @@ function AllProductsPage() {
             Add Product
           </span>
         </button>
+
         <div className="flex space-x-4">
           {/* Sort Dropdown */}
           <div className="relative" ref={dropdownSortRef}>
             <motion.div
               onClick={() => setIsDropdownSortOpen(!isDropdownSortOpen)}
               whileTap={{ scale: 0.95 }}
-              className="border rounded-full bg-neutral-900 border-neutral-700 hover:border-neutral-500 px-4 py-2 space-x-2 cursor-pointer flex items-center justify-between transition-all duration-300 ease-in-out"
+              className="border rounded-full bg-neutral-900 border-neutral-700 hover:border-neutral-500 px-4 py-2 space-x-2 cursor-pointer 
+              flex items-center justify-between transition-all duration-300 ease-in-out group"
             >
               <span
-                className={`text-xs md:text-sm ${
+                className={`text-xs md:text-sm group-hover:text-neutral-300 line-clamp-1 ${
                   isDropdownSortOpen ? "text-neutral-200" : "text-neutral-500"
                 }`}
               >
@@ -300,6 +275,7 @@ function AllProductsPage() {
                 <ChevronDown className="w-4 h-4 text-neutral-400" />
               </motion.div>
             </motion.div>
+
             <AnimatePresence>
               {isDropdownSortOpen && (
                 <motion.div
@@ -329,7 +305,7 @@ function AllProductsPage() {
           <AnimatePresence>
             {showSearch && (
               <motion.div
-                className="w-full sm:w-auto border bg-neutral-900 border-neutral-700 hover:border-neutral-500 px-3 py-2 rounded-full"
+                className="w-full sm:w-auto border bg-neutral-900 border-neutral-700 hover:border-neutral-500 px-3 py-2 rounded-full group:"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
@@ -386,16 +362,45 @@ function AllProductsPage() {
             >
               {/* Image and Category */}
               <div className="relative overflow-hidden">
-                {product.media && product.media.length > 0 && (
-                  <img
-                    src={`data:${product.media[0].contentType};base64,${product.media[0].data}`}
-                    alt={product.name}
-                    className="object-cover w-full transition-transform duration-300 ease-in-out group-hover:scale-110"
-                  />
+                {product.media && product.media.length > 0 ? (
+                  (() => {
+                    const firstMedia = product.media[0];
+                    const mediaSrc = `data:${firstMedia.contentType};base64,${firstMedia.data}`;
+                    if (firstMedia.contentType.startsWith("image")) {
+                      return (
+                        <img
+                          src={mediaSrc}
+                          alt={product.name}
+                          className="object-cover w-full transition-transform duration-300 ease-in-out group-hover:scale-110"
+                        />
+                      );
+                    } else if (firstMedia.contentType.startsWith("video")) {
+                      return (
+                        <video
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          className="object-cover w-full transition-transform duration-300 ease-in-out group-hover:scale-110"
+                        >
+                          <source
+                            src={mediaSrc}
+                            type={firstMedia.contentType}
+                          />
+                          Your browser does not support the video tag.
+                        </video>
+                      );
+                    } else {
+                      return (
+                        <p>Unsupported media type: {firstMedia.contentType}</p>
+                      );
+                    }
+                  })()
+                ) : (
+                  <div className="w-full h-48 bg-neutral-800 flex items-center justify-center">
+                    <p className="text-neutral-500">No media available</p>
+                  </div>
                 )}
-                {/* <div className="absolute top-3 right-3 bg-white/80 rounded-full px-3 py-1 text-xs font-medium shadow-md text-neutral-950">
-                  {product.category}
-                </div> */}
               </div>
 
               {/* Product Information */}
@@ -408,6 +413,7 @@ function AllProductsPage() {
                     className="text-neutral-400 text-sm line-clamp-1 mt-1 flex-grow"
                     dangerouslySetInnerHTML={{ __html: product.description }}
                   ></p>
+
                   {/*  Product Details */}
                   <div className="mt-2">
                     <div className="space-y-2 text-sm text-gray-600">
@@ -423,8 +429,9 @@ function AllProductsPage() {
                         <h3 className="text-neutral-200 text-xs sm:text-sm font-medium">
                           Price (IDR):
                         </h3>
+                        {/* Removed Trend Indicator */}
                         <span className="text-xs sm:text-sm text-neutral-300">
-                          Rp{formatPriceIDR(product.priceIDR || 0)}
+                          Rp{formatPriceIDR(product.priceUSD || 0)}
                         </span>
                       </div>
                     </div>
@@ -472,13 +479,35 @@ function AllProductsPage() {
         <div className="flex justify-center my-8 md:mt-14">
           <ReactPaginate
             previousLabel={
-              <div className="flex items-center space-x-2">
-                <ChevronsLeft className="w-6 h-6 text-neutral-200" />
+              <div
+                className={`flex items-center space-x-2 ${
+                  currentPage === 0 ? "cursor-not-allowed" : ""
+                }`}
+              >
+                <ChevronsLeft
+                  className={`w-6 h-6 ${
+                    currentPage === 0 ? "text-neutral-400" : "text-neutral-200"
+                  }`}
+                />
               </div>
             }
             nextLabel={
-              <div className="flex items-center space-x-2">
-                <ChevronsRight className="w-6 h-6 text-neutral-200" />
+              <div
+                className={`flex items-center space-x-2 ${
+                  currentPage ===
+                  Math.ceil(filteredProducts.length / productsPerPage) - 1
+                    ? "cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                <ChevronsRight
+                  className={`w-6 h-6 ${
+                    currentPage ===
+                    Math.ceil(filteredProducts.length / productsPerPage) - 1
+                      ? "text-neutral-400"
+                      : "text-neutral-200"
+                  }`}
+                />
               </div>
             }
             breakLabel={"..."}
@@ -489,22 +518,21 @@ function AllProductsPage() {
             containerClassName={
               "flex items-center space-x-1 md:space-x-4 border border-neutral-800 p-2 rounded-full shadow-md bg-neutral-900"
             }
-            pageClassName={` relative w-8 h-8 flex items-center justify-center rounded-full cursor-pointer text-sm font-medium
-            transition-all duration-300 hover:-translate-y-1 text-neutral-200`}
+            pageClassName={`relative w-8 h-8 flex items-center justify-center rounded-full cursor-pointer text-sm font-medium transition-all duration-300 hover:-translate-y-1 text-neutral-200`}
             previousClassName={`flex items-center space-x-2 px-3 py-2 rounded-full ${
               currentPage === 0
                 ? "text-neutral-400 cursor-not-allowed"
                 : "hover:bg-neutral-800 hover:-translate-y-1 transition-all duration-300"
             }`}
-            nextClassName={` flex items-center space-x-2 px-3 py-2 rounded-full ${
+            nextClassName={`flex items-center space-x-2 px-3 py-2 rounded-full ${
               currentPage ===
               Math.ceil(filteredProducts.length / productsPerPage) - 1
                 ? "text-neutral-400 cursor-not-allowed"
                 : "hover:bg-neutral-800 hover:-translate-y-1 transition-all duration-300"
-            } `}
+            }`}
             breakClassName={"px-3 py-2 text-gray-500 select-none"}
             activeClassName={"bg-neutral-800 text-white shadow-md scale-105"}
-            pageLinkClassName={` absolute inset-0 flex items-center justify-center`}
+            pageLinkClassName={`absolute inset-0 flex items-center justify-center`}
             disabledClassName={"opacity-50 cursor-not-allowed"}
             renderOnZeroPageCount={null}
           />
@@ -517,7 +545,6 @@ function AllProductsPage() {
           <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-white"></div>
         </div>
       )}
-
       {isOverlay && (
         <div className="fixed inset-0 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300 ease-in-out"></div>
       )}

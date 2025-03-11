@@ -1,74 +1,53 @@
-function createMedia(url) {
+// lib/cropImage.js (No changes needed)
+/**
+ * urlToFile
+ * @param {string} url - Data URL
+ * @param {string} filename - Name of the file to be created
+ * @param {string} mimeType - MIME type of the file
+ */
+export const urlToFile = async (url, filename, mimeType) => {
+  const res = await fetch(url);
+  const buf = await res.arrayBuffer();
+  return new File([buf], filename, { type: mimeType });
+};
+/**
+ * getCroppedImg
+ * @param {string} imageSrc - Base64 encoded image source
+ * @param {object} pixelCrop - Cropped area in pixels {x, y, width, height}
+ */
+export const getCroppedImg = async (imageSrc, pixelCrop) => {
+  const image = new Image();
+  image.src = imageSrc;
   return new Promise((resolve, reject) => {
-    const mime = url.split(";")[0].split(":")[1];
-    const ext = mime.split("/")[1].toLowerCase();
-
-    if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => resolve({ type: "image", element: img });
-      img.onerror = reject;
-      img.src = url;
-    } else if (["mp4", "webm", "ogg"].includes(ext)) {
-      const video = document.createElement("video");
-      video.crossOrigin = "anonymous";
-      video.src = url;
-      video.muted = true;
-      video.currentTime = 0;
-
-      video.onloadeddata = () => resolve({ type: "video", element: video });
-      video.onerror = reject;
-    } else {
-      reject(new Error("Unsupported file type"));
-    }
+    image.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = pixelCrop.width;
+      canvas.height = pixelCrop.height;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(
+        image,
+        pixelCrop.x,
+        pixelCrop.y,
+        pixelCrop.width,
+        pixelCrop.height,
+        0,
+        0,
+        pixelCrop.width,
+        pixelCrop.height
+      );
+      canvas.toBlob(async (blob) => {
+        if (blob) {
+          const file = new File([blob], "cropped-image.jpeg", {
+            type: "image/jpeg",
+          }); // Use a consistent file type
+          resolve(file);
+        } else {
+          reject(new Error("Failed to create blob from canvas."));
+        }
+      }, "image/jpeg"); // Use a consistent MIME type
+    };
+    image.onerror = (error) => {
+      reject(error);
+    };
   });
-}
-
-export async function getCroppedImg(mediaSrc, croppedAreaPixels) {
-  const { type, element } = await createMedia(mediaSrc);
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = croppedAreaPixels.width;
-  canvas.height = croppedAreaPixels.height;
-
-  if (type === "image") {
-    ctx.drawImage(
-      element,
-      croppedAreaPixels.x,
-      croppedAreaPixels.y,
-      croppedAreaPixels.width,
-      croppedAreaPixels.height,
-      0,
-      0,
-      croppedAreaPixels.width,
-      croppedAreaPixels.height
-    );
-  } else if (type === "video") {
-    await new Promise((resolve) => {
-      element.currentTime = 0;
-      element.onseeked = resolve;
-    });
-
-    ctx.drawImage(
-      element,
-      croppedAreaPixels.x,
-      croppedAreaPixels.y,
-      croppedAreaPixels.width,
-      croppedAreaPixels.height,
-      0,
-      0,
-      croppedAreaPixels.width,
-      croppedAreaPixels.height
-    );
-  }
-
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      const file = new File([blob], `cropped-${Date.now()}.jpg`, {
-        type: "image/jpeg",
-      });
-      resolve(file);
-    }, "image/jpeg");
-  });
-}
+};

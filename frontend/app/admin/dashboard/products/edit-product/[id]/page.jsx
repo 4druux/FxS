@@ -1,72 +1,49 @@
-// EditProductPage.jsx
 "use client";
 import MediaUploader from "@/components/1_admin/add-product/MediaUploader";
-import { ArrowLeftRight } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { ArrowLeftRight } from "lucide-react"; // Only need ArrowLeftRight now
+import { useState, useEffect, useCallback, useContext } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useParams, useRouter } from "next/navigation";
+import { ShopContext } from "@/context/ShopContext";
 
 export default function EditProductPage() {
+  // --- State ---
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
   const [priceUSD, setPriceUSD] = useState("");
   const [priceIDR, setPriceIDR] = useState("");
-  const [exchangeRate, setExchangeRate] = useState(null);
-  const [loadingRate, setLoadingRate] = useState(true);
-  const [loadingProduct, setLoadingProduct] = useState(true);
-  const [initialProductData, setInitialProductData] = useState(null);
-  const [error, setError] = useState(null);
   const [mediaFiles, setMediaFiles] = useState([]);
+  const [initialProductData, setInitialProductData] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // --- Context & Hooks ---
   const { id } = useParams();
   const router = useRouter();
+  const {
+    exchangeRate,
+    exchangeRateLoading,
+    exchangeRateError,
+    fetchProductById,
+    updateProduct,
+  } = useContext(ShopContext); // Removed exchangeRateTrend
 
-  const fetchExchangeRate = useCallback(async () => {
-    setLoadingRate(true);
-    setError(null);
-    try {
-      const response = await fetch(
-        "https://v6.exchangerate-api.com/v6/208006103b23b6e248b13e36/latest/USD"
-      );
-      if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.status}`);
-      }
-      const data = await response.json();
-      if (data?.conversion_rates?.IDR) {
-        setExchangeRate(data.conversion_rates.IDR);
-      } else {
-        throw new Error("Invalid exchange rate data");
-      }
-    } catch (err) {
-      setError(err.message || "Failed to fetch exchange rate.");
-      console.error("Exchange rate fetch error:", err);
-    } finally {
-      setLoadingRate(false);
-    }
-  }, []);
-
-  // Fetch product data
+  // --- Data Fetching and Initialization ---
   const fetchProductData = useCallback(async () => {
-    setLoadingProduct(true);
-    setError(null);
+    setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/product/${id}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch product: ${response.status}`);
+      const productData = await fetchProductById(id);
+      if (!productData) {
+        router.push("/admin/dashboard/products");
+        return;
       }
-      const productData = await response.json();
-
       setInitialProductData(productData);
       setProductName(productData.name);
       setDescription(productData.description);
       setPriceUSD(productData.priceUSD);
-      setPriceIDR(
-        `Rp ${parseInt(productData.priceIDR).toLocaleString("id-ID", {
-          minimumFractionDigits: 0,
-          maximumFractionDigits: 0,
-        })}`
-      );
-
+      setPriceIDR(formatPriceIDR(productData.priceIDR)); // Use a helper function
+      // Convert base64 media data back to File objects
       const initialMediaFiles = await Promise.all(
         productData.media.map(async (mediaItem) => {
           const blob = await fetch(
@@ -75,38 +52,48 @@ export default function EditProductPage() {
           const file = new File(
             [blob],
             `image.${mediaItem.contentType.split("/")[1]}`,
-            { type: mediaItem.contentType }
+            {
+              type: mediaItem.contentType,
+            }
           );
           return { original: file, cropped: file };
         })
       );
       setMediaFiles(initialMediaFiles);
-    } catch (err) {
-      setError(err.message || "Failed to fetch product.");
-      console.error("Product fetch error:", err);
+    } catch (error) {
+      console.error("Failed to fetch product:", error);
+      // Consider showing a user-friendly error message here.
     } finally {
-      setLoadingProduct(false);
+      setIsLoading(false);
     }
-  }, [id]);
-
-  // Fungsi untuk memeriksa apakah ada perubahan pada form
-  const hasChanges = () => {
-    if (!initialProductData) return false;
-    return (
-      productName.trim() !== initialProductData.name ||
-      description.trim() !== initialProductData.description ||
-      parseFloat(priceUSD) !== parseFloat(initialProductData.priceUSD) ||
-      String(priceIDR).replace(/[^0-9]/g, "") !==
-        String(initialProductData.priceIDR).replace(/[^0-9]/g, "") ||
-      mediaFiles.length !== initialProductData.media.length
-    );
-  };
+  }, [fetchProductById, id, router]);
 
   useEffect(() => {
-    fetchExchangeRate();
     fetchProductData();
-  }, [fetchExchangeRate, fetchProductData]);
+  }, [fetchProductData]);
 
+  // --- Helper Functions ---
+  // Format IDR price
+  const formatPriceIDR = (price) => {
+    return `Rp ${parseInt(price).toLocaleString("id-ID", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })}`;
+  };
+
+  // Format USD price
+  const formatPriceUSD = useCallback(() => {
+    if (!priceUSD) return "$ 0.00";
+    const numericValue = parseFloat(priceUSD);
+    return isNaN(numericValue)
+      ? "$ 0.00"
+      : numericValue.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        });
+  }, [priceUSD]);
+
+  // Convert USD to IDR
   const convertUsdToIdr = useCallback(() => {
     if (exchangeRate === null) return;
     const numericUSD = parseFloat(priceUSD) || 0;
@@ -115,18 +102,14 @@ export default function EditProductPage() {
       return;
     }
     const convertedIDR = numericUSD * exchangeRate;
-    setPriceIDR(
-      `Rp ${convertedIDR.toLocaleString("id-ID", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      })}`
-    );
+    setPriceIDR(formatPriceIDR(convertedIDR));
   }, [priceUSD, exchangeRate]);
 
   useEffect(() => {
     convertUsdToIdr();
   }, [convertUsdToIdr]);
 
+  // Sanitize and validate USD price input
   const handlePriceChange = useCallback((e) => {
     let value = e.target.value;
     value = value.replace(/[^0-9.]/g, "");
@@ -140,23 +123,13 @@ export default function EditProductPage() {
     setPriceUSD(value);
   }, []);
 
-  const formatPriceUSD = useCallback(() => {
-    if (!priceUSD) return "$ 0.00";
-    const numericValue = parseFloat(priceUSD);
-    if (isNaN(numericValue)) {
-      return "$ 0.00";
-    }
-    return numericValue.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-  }, [priceUSD]);
-
+  // Check if the USD price is valid
   const isPriceValid = () => {
     const numericUSD = parseFloat(priceUSD) || 0;
     return numericUSD >= 0.01;
   };
 
+  // Convert a File object to Base64
   const convertFileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -166,8 +139,71 @@ export default function EditProductPage() {
     });
   };
 
+  // --- Change Detection ---
+  // Deep comparison of media files
+  const areMediaFilesEqual = (files1, files2) => {
+    if (files1.length !== files2.length) {
+      return false;
+    }
+    for (let i = 0; i < files1.length; i++) {
+      const file1 = files1[i]?.original; // Use optional chaining
+      // Create a temporary File object from initialProductData.media
+      const initialMediaItem = initialProductData.media[i];
+      if (!initialMediaItem) {
+        return false;
+      }
+      const base64Data = initialMediaItem.data;
+      const contentType = initialMediaItem.contentType;
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let j = 0; j < byteCharacters.length; j++) {
+        byteNumbers[j] = byteCharacters.charCodeAt(j);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: contentType });
+      const file2 = new File([blob], `image.${contentType.split("/")[1]}`, {
+        type: contentType,
+      });
+      // Check for undefined before accessing properties
+      if (!file1 || !file2) {
+        return false;
+      }
+      // Compare essential properties
+      if (
+        file1.name !== file2.name ||
+        file1.size !== file2.size ||
+        file1.type !== file2.type
+      ) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // Check if any changes have been made
+  const hasChanges = () => {
+    if (!initialProductData) return false;
+    const currentPriceIDR = priceIDR.replace(/[^0-9]/g, "");
+    const initialPriceIDR = String(initialProductData.priceIDR);
+    const isPriceIDREqual = currentPriceIDR === initialPriceIDR;
+
+    return (
+      productName.trim() !== initialProductData.name ||
+      description.trim() !== initialProductData.description ||
+      parseFloat(priceUSD) !== parseFloat(initialProductData.priceUSD) ||
+      !isPriceIDREqual ||
+      !areMediaFilesEqual(mediaFiles, initialProductData.media)
+    );
+  };
+
+  // --- Form Submission ---
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!hasChanges()) {
+      return;
+    }
+    setIsUpdating(true);
+
     try {
       const mediaBase64 = await Promise.all(
         mediaFiles.map(async (file) => {
@@ -188,45 +224,37 @@ export default function EditProductPage() {
         media: mediaBase64,
       };
 
-      const response = await fetch(`http://localhost:5000/api/product/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update product.");
-      }
-
-      alert("Product updated successfully!");
+      await updateProduct(id, productData);
       router.push("/admin/dashboard/products");
     } catch (error) {
-      console.error("Error updating product:", error);
-      alert(`Failed to update product: ${error.message}`);
+      console.error("handleSubmit error:", error);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
+  // --- Form Completion Check ---
   const isFormComplete =
     productName.trim() !== "" &&
     description.trim() !== "" &&
     isPriceValid() &&
     mediaFiles.length > 0 &&
     exchangeRate !== null &&
-    hasChanges();
+    hasChanges(); // Only enable if there are changes
 
-  if (loadingRate || loadingProduct) {
+  // --- Loading and Error Handling ---
+  if (exchangeRateLoading || isUpdating || isLoading) {
     return (
       <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
       </div>
     );
   }
-
-  if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
+  if (exchangeRateError) {
+    return <div className="text-red-500">Error: {exchangeRateError}</div>;
   }
 
+  // --- UI ---
   return (
     <div className="text-neutral-200">
       <h1 className="text-2xl font-bold mb-4">Edit Product</h1>
@@ -235,6 +263,7 @@ export default function EditProductPage() {
         className="bg-neutral-900 border border-neutral-800 p-4 sm:p-6 rounded-xl"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Media Uploader */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-neutral-400 mb-2">
               Upload Image / GIF / Video
@@ -244,6 +273,8 @@ export default function EditProductPage() {
               setMediaFiles={setMediaFiles}
             />
           </div>
+
+          {/* Product Name */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-neutral-400">
               Product Name
@@ -256,6 +287,8 @@ export default function EditProductPage() {
               placeholder="Your product name"
             />
           </div>
+
+          {/* Description */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-neutral-400 mb-1">
               Description
@@ -270,6 +303,8 @@ export default function EditProductPage() {
               />
             </div>
           </div>
+
+          {/* Price Input Fields */}
           <div className="flex flex-col md:flex-row items-center gap-4">
             <div className="flex-1 w-full">
               <label className="block text-sm font-medium text-neutral-400">
@@ -292,15 +327,18 @@ export default function EditProductPage() {
             <div className="flex-1 w-full">
               <label className="block text-sm font-medium text-neutral-400">
                 Price (IDR)
+                {/* REMOVED Trend Indicators */}
               </label>
               <input
                 type="text"
                 value={priceIDR}
                 readOnly
-                className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
+                className="mt-1 block w-full px-3 py-2 cursor-not-allowed bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
               />
             </div>
           </div>
+
+          {/* Form Buttons */}
           <div className="col-span-2 flex justify-end space-x-2 sm:space-x-4 mt-4">
             <button
               type="button"
@@ -323,8 +361,10 @@ export default function EditProductPage() {
           </div>
         </div>
       </form>
+
       <div className="h-6"></div>
-      {/* Custom Styling untuk Quill di Dark Mode */}
+
+      {/* Custom Styling for Quill in Dark Mode */}
       <style jsx global>{`
         .quill-dark .ql-toolbar {
           background-color: #262626;

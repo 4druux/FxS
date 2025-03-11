@@ -1,15 +1,13 @@
-// ModalCrop.jsx (Corrected)
+// ModalCrop.jsx  (No changes needed here)
 import { getCroppedImg } from "@/lib/cropImage";
 import { XIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import Cropper from "react-easy-crop";
-
 export default function ModalCrop({ mediaSrc, onCropComplete, onClose }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [mediaType, setMediaType] = useState("image"); // default image
-
   useEffect(() => {
     const ext = mediaSrc.split(";")[0].split(":")[1].split("/")[1]; // Get extension from base64 data URL
     if (["mp4", "webm", "ogg"].includes(ext)) {
@@ -18,16 +16,25 @@ export default function ModalCrop({ mediaSrc, onCropComplete, onClose }) {
       setMediaType("image");
     }
   }, [mediaSrc]);
-
   const handleCropComplete = (_, areaPixels) => {
     setCroppedAreaPixels(areaPixels);
   };
-
   const handleSave = async () => {
-    const croppedMedia = await getCroppedImg(mediaSrc, croppedAreaPixels);
-    onCropComplete(croppedMedia);
+    // IMPORTANT:  getCroppedImg only works for images.  We'll handle video differently.
+    if (mediaType === "image") {
+      const croppedMedia = await getCroppedImg(mediaSrc, croppedAreaPixels);
+      onCropComplete(croppedMedia);
+    } else {
+      // For video, we'll just pass back the original file.  Cropping is not supported.
+      // You could add error handling or a message here.
+      const originalFile = await fetch(mediaSrc).then((res) => res.blob());
+      onCropComplete(
+        new File([originalFile], "video." + originalFile.type.split("/")[1], {
+          type: originalFile.type,
+        })
+      );
+    }
   };
-
   useEffect(() => {
     // Lock scroll saat modal aktif
     const scrollY = window.scrollY;
@@ -42,7 +49,6 @@ export default function ModalCrop({ mediaSrc, onCropComplete, onClose }) {
       window.scrollTo(0, scrollY);
     };
   }, []);
-
   return (
     <div
       className="fixed inset-0 bg-black/50 flex justify-center items-center z-50"
@@ -95,7 +101,7 @@ export default function ModalCrop({ mediaSrc, onCropComplete, onClose }) {
             onClick={handleSave}
             className="px-4 py-2 text-sm border bg-neutral-800 border-neutral-700 text-neutral-400 hover:text-white hover:bg-neutral-800 hover:border-neutral-600 rounded-full"
           >
-            Crop
+            {mediaType === "video" ? "Use Original" : "Crop"}
           </button>
         </div>
       </div>

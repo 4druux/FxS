@@ -1,0 +1,44 @@
+/* ProductDetailPage.module.css */
+
+.description ul {
+  /* Tambahkan .description di depan */
+  list-style-type: disc;
+  margin-left: 1.5rem;
+  padding-left: 0;
+}
+
+.description li {
+  /* Tambahkan .description di depan */
+  margin-bottom: 0.5rem;
+}
+
+.description h1 {
+  /* Tambahkan .description di depan */
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.description h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.75rem;
+}
+.description h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.description a {
+  color: teal;
+  text-decoration: underline;
+}
+
+.description strong {
+  font-weight: bold;
+}
+
+.description em {
+  font-style: italic;
+}

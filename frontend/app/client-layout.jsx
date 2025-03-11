@@ -10,6 +10,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import useIsNotFound from "@/hooks/useIsNotFound";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ShopProvider } from "@/context/ShopContext";
 
 export default function ClientLayout({ children }) {
   const pathname = usePathname();
@@ -28,25 +29,27 @@ export default function ClientLayout({ children }) {
   return (
     <>
       <AuthProvider>
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-        />
-        {!isAdminPage && !isNotFound && <Header />}
-        <AnimatePresence mode="wait" initial={false}>
-          <LocomotiveLayout key={`locomotive-${pathname}`}>
-            {children}
-          </LocomotiveLayout>
-        </AnimatePresence>
-        {!isAdminPage && !isNotFound && <Footer />}
+        <ShopProvider>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+          />
+          {!isAdminPage && !isNotFound && <Header />}
+          <AnimatePresence mode="wait" initial={false}>
+            <LocomotiveLayout key={`locomotive-${pathname}`}>
+              {children}
+            </LocomotiveLayout>
+          </AnimatePresence>
+          {!isAdminPage && !isNotFound && <Footer />}
+        </ShopProvider>
       </AuthProvider>
     </>
   );

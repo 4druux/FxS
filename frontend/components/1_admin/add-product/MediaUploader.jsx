@@ -7,32 +7,40 @@ import { Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import ModalCrop from "../modalCrop";
-
 export default function MediaUploader({ mediaFiles, setMediaFiles }) {
-  // Initialize mediaFiles to an empty array if it's undefined or null
   const [internalMediaFiles, setInternalMediaFiles] = useState(
     mediaFiles || []
   );
-
   const [previewURLs, setPreviewURLs] = useState([]);
   const [croppingIndex, setCroppingIndex] = useState(null);
   const [cropSource, setCropSource] = useState(null);
-
-  // Use internalMediaFiles for local state management
+  const [mediaTypes, setMediaTypes] = useState([]); // Store media types for each file
+  // Determine media type and create preview URLs
   useEffect(() => {
-    const urls = internalMediaFiles.map((file) =>
-      file?.cropped ? URL.createObjectURL(file.cropped) : ""
-    );
+    const urls = [];
+    const types = [];
+    internalMediaFiles.forEach((fileObj) => {
+      if (fileObj.cropped) {
+        const url = URL.createObjectURL(fileObj.cropped);
+        urls.push(url);
+        const type = fileObj.cropped.type.startsWith("video")
+          ? "video"
+          : "image";
+        types.push(type);
+      } else {
+        urls.push(""); // Placeholder for empty slots
+        types.push("empty"); // Placeholder type
+      }
+    });
     setPreviewURLs(urls);
-    console.log("MediaFiles updated in MediaUploader:", internalMediaFiles);
+    setMediaTypes(types);
+    // Cleanup: Revoke object URLs when component unmounts or URLs change
     return () => urls.forEach((url) => URL.revokeObjectURL(url));
   }, [internalMediaFiles]);
-
   // Update the parent component's state whenever internalMediaFiles changes
   useEffect(() => {
     setMediaFiles(internalMediaFiles);
   }, [internalMediaFiles, setMediaFiles]);
-
   // Add slot kosong
   const handleAddImage = () => {
     if (internalMediaFiles.length < 5) {
@@ -42,14 +50,12 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
       ]);
     }
   };
-
   // Hapus file
   const handleRemoveImage = (index) => {
     const updatedFiles = [...internalMediaFiles];
     updatedFiles.splice(index, 1);
     setInternalMediaFiles(updatedFiles);
   };
-
   // Ketika upload file baru
   const handleImageChange = (index, event) => {
     const file = event.target.files[0];
@@ -58,17 +64,23 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
     const reader = new FileReader();
     reader.onload = () => {
       const updatedFiles = [...internalMediaFiles];
-      updatedFiles[index] = { original: file, cropped: null };
-      setInternalMediaFiles(updatedFiles);
-      setCropSource(reader.result); // Kirim ke modal crop pakai original
-      setCroppingIndex(index);
+      // Check if it's a GIF
+      if (file.type === "image/gif") {
+        // If it's a GIF, bypass cropping and store the original directly
+        updatedFiles[index] = { original: file, cropped: file }; // Use original as cropped
+        setInternalMediaFiles(updatedFiles);
+      } else {
+        // If it's not a GIF, proceed with cropping
+        updatedFiles[index] = { original: file, cropped: null };
+        setInternalMediaFiles(updatedFiles);
+        setCropSource(reader.result); // Kirim ke modal crop pakai original
+        setCroppingIndex(index);
+      }
     };
     reader.readAsDataURL(file);
   };
-
   // Handle crop selesai
   const handleCropComplete = (croppedFile) => {
-    console.log("Crop selesai, update mediaFiles");
     const updatedFiles = [...internalMediaFiles];
     updatedFiles[croppingIndex] = {
       ...updatedFiles[croppingIndex],
@@ -78,20 +90,28 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
     setCroppingIndex(null);
     setCropSource(null);
   };
-
   // Edit ulang (reset ke original)
   const handleEditImage = (index) => {
-    const file = internalMediaFiles[index]?.original;
-    if (!file) return;
+    const fileObj = internalMediaFiles[index];
+    if (!fileObj?.original) return;
 
+    // If it's a GIF, don't open the crop modal.  Just allow re-upload.
+    if (fileObj.original.type === "image/gif") {
+      // Trigger the file input.  This is a bit of a workaround.
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*,video/*,image/gif";
+      input.onchange = (e) => handleImageChange(index, e);
+      input.click();
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       setCropSource(reader.result); // Open modal pakai original
       setCroppingIndex(index);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(fileObj.original);
   };
-
   return (
     <div className="flex flex-wrap gap-4">
       {/* Mobile Slider */}
@@ -106,11 +126,22 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
           {internalMediaFiles.map((file, index) => (
             <SwiperSlide key={index}>
               <div className="relative h-[300px] rounded-xl bg-neutral-800 flex justify-center items-center">
-                {file ? (
-                  <img
-                    src={previewURLs[index]}
-                    className="w-full h-full object-cover rounded-xl"
-                  />
+                {file.cropped ? (
+                  mediaTypes[index] === "video" ? (
+                    <video
+                      src={previewURLs[index]}
+                      className="w-full h-full object-cover rounded-xl"
+                      controls // Add controls for video playback
+                      autoPlay
+                      muted
+                      loop
+                    />
+                  ) : (
+                    <img
+                      src={previewURLs[index]}
+                      className="w-full h-full object-cover rounded-xl"
+                    />
+                  )
                 ) : (
                   <label className="cursor-pointer flex flex-col justify-center items-center gap-2">
                     <UploadCloud className="w-12 h-12 text-neutral-400" />
@@ -125,10 +156,10 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
                     </span>
                   </label>
                 )}
-                {file && (
+                {file.cropped && (
                   <div className="absolute inset-0 flex justify-center items-center bg-black/50 opacity-0 hover:opacity-100">
                     <button
-                      type="button" // VERY IMPORTANT: Prevent form submission
+                      type="button"
                       onClick={() => handleRemoveImage(index)}
                     >
                       <Trash2 className="text-neutral-400 w-8 h-8" />
@@ -162,21 +193,29 @@ export default function MediaUploader({ mediaFiles, setMediaFiles }) {
           >
             {fileObj.cropped ? (
               <>
-                <img
-                  src={previewURLs[index]}
-                  className="w-full h-full object-contain rounded-xl"
-                />
+                {mediaTypes[index] === "video" ? (
+                  <video
+                    src={previewURLs[index]}
+                    className="w-full h-full object-contain rounded-xl"
+                    controls // Add controls for video playback
+                    autoPlay
+                    muted
+                    loop
+                  />
+                ) : (
+                  <img
+                    src={previewURLs[index]}
+                    className="w-full h-full object-contain rounded-xl"
+                  />
+                )}
                 <div className="absolute inset-0 flex justify-center items-center gap-2 rounded-xl bg-black/50 opacity-0 group-hover:opacity-100">
                   <button
-                    type="button" // VERY IMPORTANT: Prevent form submission
+                    type="button"
                     onClick={() => handleRemoveImage(index)}
                   >
                     <Trash2 className="w-8 h-8 text-white p-1 rounded-full hover:bg-neutral-600" />
                   </button>
-                  <button
-                    type="button" // VERY IMPORTANT: Prevent form submission
-                    onClick={() => handleEditImage(index)}
-                  >
+                  <button type="button" onClick={() => handleEditImage(index)}>
                     <Pencil className="w-8 h-8 text-white p-1 rounded-full hover:bg-neutral-600" />
                   </button>
                 </div>

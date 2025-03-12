@@ -1,6 +1,6 @@
+// EditProductPage.jsx
 "use client";
 import MediaUploader from "@/components/1_admin/add-product/MediaUploader";
-import { ArrowLeftRight } from "lucide-react"; // Only need ArrowLeftRight now
 import { useState, useEffect, useCallback, useContext } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -11,8 +11,7 @@ export default function EditProductPage() {
   // --- State ---
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
-  const [priceUSD, setPriceUSD] = useState("");
-  const [priceIDR, setPriceIDR] = useState("");
+  const [priceIDR, setPriceIDR] = useState(""); // Only IDR price
   const [mediaFiles, setMediaFiles] = useState([]);
   const [initialProductData, setInitialProductData] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -21,13 +20,7 @@ export default function EditProductPage() {
   // --- Context & Hooks ---
   const { id } = useParams();
   const router = useRouter();
-  const {
-    exchangeRate,
-    exchangeRateLoading,
-    exchangeRateError,
-    fetchProductById,
-    updateProduct,
-  } = useContext(ShopContext); // Removed exchangeRateTrend
+  const { fetchProductById, updateProduct } = useContext(ShopContext); // Only fetch and update
 
   // --- Data Fetching and Initialization ---
   const fetchProductData = useCallback(async () => {
@@ -41,9 +34,8 @@ export default function EditProductPage() {
       setInitialProductData(productData);
       setProductName(productData.name);
       setDescription(productData.description);
-      setPriceUSD(productData.priceUSD);
-      setPriceIDR(formatPriceIDR(productData.priceIDR)); // Use a helper function
-      // Convert base64 media data back to File objects
+      setPriceIDR(formatPriceIDR(productData.priceIDR)); // Format the initial IDR price
+      // Convert base64 media data back to File objects (same as before)
       const initialMediaFiles = await Promise.all(
         productData.media.map(async (mediaItem) => {
           const blob = await fetch(
@@ -73,65 +65,49 @@ export default function EditProductPage() {
   }, [fetchProductData]);
 
   // --- Helper Functions ---
-  // Format IDR price
+  // Format IDR price (keep this helper function)
   const formatPriceIDR = (price) => {
-    return `Rp ${parseInt(price).toLocaleString("id-ID", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    })}`;
+    // Parse to integer (handle empty input)
+    const numericValue = parseInt(price, 10);
+    // Format with toLocaleString (handle NaN)
+    const formattedValue = isNaN(numericValue)
+      ? ""
+      : numericValue.toLocaleString("id-ID");
+    return formattedValue;
   };
 
-  // Format USD price
-  const formatPriceUSD = useCallback(() => {
-    if (!priceUSD) return "$ 0.00";
-    const numericValue = parseFloat(priceUSD);
-    return isNaN(numericValue)
-      ? "$ 0.00"
-      : numericValue.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-        });
-  }, [priceUSD]);
-
-  // Convert USD to IDR
-  const convertUsdToIdr = useCallback(() => {
-    if (exchangeRate === null) return;
-    const numericUSD = parseFloat(priceUSD) || 0;
-    if (isNaN(numericUSD)) {
-      setPriceIDR("");
-      return;
-    }
-    const convertedIDR = numericUSD * exchangeRate;
-    setPriceIDR(formatPriceIDR(convertedIDR));
-  }, [priceUSD, exchangeRate]);
-
-  useEffect(() => {
-    convertUsdToIdr();
-  }, [convertUsdToIdr]);
-
-  // Sanitize and validate USD price input
+  // Sanitize and validate IDR price input (and format)
   const handlePriceChange = useCallback((e) => {
     let value = e.target.value;
-    value = value.replace(/[^0-9.]/g, "");
-    const parts = value.split(".");
-    if (parts.length > 2) {
-      value = parts[0] + "." + parts.slice(1).join("");
-    }
-    if (parts[1]?.length > 2) {
-      value = parts[0] + "." + parts[1].slice(0, 2);
-    }
-    setPriceUSD(value);
+    // Remove non-numeric characters
+    value = value.replace(/[^0-9]/g, "");
+    // Parse to integer (handle empty input)
+    const numericValue = parseInt(value, 10);
+    // Format with toLocaleString (handle NaN)
+    const formattedValue = isNaN(numericValue)
+      ? ""
+      : numericValue.toLocaleString("id-ID");
+    setPriceIDR(formattedValue);
   }, []);
 
-  // Check if the USD price is valid
+  // Check if the IDR price is valid
   const isPriceValid = () => {
-    const numericUSD = parseFloat(priceUSD) || 0;
-    return numericUSD >= 0.01;
+    // Remove non-numeric characters before parsing
+    const numericIDR = parseInt(priceIDR.replace(/[^0-9]/g, ""), 10) || 0;
+    return numericIDR > 0; // Ensure it's a positive number
   };
 
-  // Convert a File object to Base64
+  // Convert a File object to Base64 (keep this)
   const convertFileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
+      if (!file) {
+        resolve(null);
+        return;
+      }
+      if (!(file instanceof Blob)) {
+        reject(new Error("Invalid file type"));
+        return;
+      }
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
@@ -140,49 +116,63 @@ export default function EditProductPage() {
   };
 
   // --- Change Detection ---
-  // Deep comparison of media files
+  // Deep comparison of media files (modified to handle null/undefined)
   const areMediaFilesEqual = (files1, files2) => {
     if (files1.length !== files2.length) {
       return false;
     }
+
     for (let i = 0; i < files1.length; i++) {
       const file1 = files1[i]?.original; // Use optional chaining
-      // Create a temporary File object from initialProductData.media
-      const initialMediaItem = initialProductData.media[i];
-      if (!initialMediaItem) {
-        return false;
+
+      // Handle cases where initialProductData.media might be missing
+      if (!initialProductData?.media || !initialProductData.media[i]) {
+        return false; // If media is missing in initial data, they are not equal
       }
+
+      const initialMediaItem = initialProductData.media[i];
+
       const base64Data = initialMediaItem.data;
       const contentType = initialMediaItem.contentType;
-      const byteCharacters = atob(base64Data);
-      const byteNumbers = new Array(byteCharacters.length);
-      for (let j = 0; j < byteCharacters.length; j++) {
-        byteNumbers[j] = byteCharacters.charCodeAt(j);
-      }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: contentType });
-      const file2 = new File([blob], `image.${contentType.split("/")[1]}`, {
-        type: contentType,
-      });
-      // Check for undefined before accessing properties
-      if (!file1 || !file2) {
-        return false;
-      }
-      // Compare essential properties
-      if (
-        file1.name !== file2.name ||
-        file1.size !== file2.size ||
-        file1.type !== file2.type
-      ) {
-        return false;
+
+      // Convert base64 to Blob, then to File
+      try {
+        const byteCharacters = atob(base64Data);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let j = 0; j < byteCharacters.length; j++) {
+          byteNumbers[j] = byteCharacters.charCodeAt(j);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: contentType });
+        const file2 = new File([blob], `image.${contentType.split("/")[1]}`, {
+          type: contentType,
+        });
+
+        // Check for undefined before accessing properties
+        if (!file1 || !file2) {
+          return false;
+        }
+
+        // Compare essential properties
+        if (
+          file1.name !== file2.name ||
+          file1.size !== file2.size ||
+          file1.type !== file2.type
+        ) {
+          return false;
+        }
+      } catch (error) {
+        console.error("Error comparing media files:", error);
+        return false; // Treat errors as unequal
       }
     }
     return true;
   };
 
-  // Check if any changes have been made
+  // Check if any changes have been made (simplified)
   const hasChanges = () => {
     if (!initialProductData) return false;
+
     const currentPriceIDR = priceIDR.replace(/[^0-9]/g, "");
     const initialPriceIDR = String(initialProductData.priceIDR);
     const isPriceIDREqual = currentPriceIDR === initialPriceIDR;
@@ -190,7 +180,6 @@ export default function EditProductPage() {
     return (
       productName.trim() !== initialProductData.name ||
       description.trim() !== initialProductData.description ||
-      parseFloat(priceUSD) !== parseFloat(initialProductData.priceUSD) ||
       !isPriceIDREqual ||
       !areMediaFilesEqual(mediaFiles, initialProductData.media)
     );
@@ -200,14 +189,18 @@ export default function EditProductPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!hasChanges()) {
-      return;
+      return; // No changes, don't submit
     }
-    setIsUpdating(true);
 
+    setIsUpdating(true);
     try {
+      // Convert media files to Base64 (same as before)
       const mediaBase64 = await Promise.all(
         mediaFiles.map(async (file) => {
           const fileToConvert = file.cropped || file.original;
+          if (!fileToConvert) {
+            return null; // Handle missing files
+          }
           const base64Data = await convertFileToBase64(fileToConvert);
           return {
             data: base64Data.split(",")[1],
@@ -216,18 +209,21 @@ export default function EditProductPage() {
         })
       );
 
+      const filteredMediaBase64 = mediaBase64.filter((item) => item !== null);
+
+      // Prepare product data (only IDR price)
       const productData = {
         name: productName,
         description,
-        priceUSD,
-        priceIDR: priceIDR.replace(/[^0-9]/g, ""),
-        media: mediaBase64,
+        priceIDR: parseInt(priceIDR.replace(/[^0-9]/g, ""), 10), // Send numeric IDR
+        media: filteredMediaBase64,
       };
 
       await updateProduct(id, productData);
       router.push("/admin/dashboard/products");
     } catch (error) {
       console.error("handleSubmit error:", error);
+      // Error handling is done in the context
     } finally {
       setIsUpdating(false);
     }
@@ -239,19 +235,16 @@ export default function EditProductPage() {
     description.trim() !== "" &&
     isPriceValid() &&
     mediaFiles.length > 0 &&
-    exchangeRate !== null &&
+    mediaFiles.every((file) => file.cropped !== null) && //check if image has been cropped
     hasChanges(); // Only enable if there are changes
 
   // --- Loading and Error Handling ---
-  if (exchangeRateLoading || isUpdating || isLoading) {
+  if (isUpdating || isLoading) {
     return (
       <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
       </div>
     );
-  }
-  if (exchangeRateError) {
-    return <div className="text-red-500">Error: {exchangeRateError}</div>;
   }
 
   // --- UI ---
@@ -304,38 +297,18 @@ export default function EditProductPage() {
             </div>
           </div>
 
-          {/* Price Input Fields */}
-          <div className="flex flex-col md:flex-row items-center gap-4">
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-medium text-neutral-400">
-                Price (USD){" "}
-                <span className="text-xs text-neutral-200">
-                  {formatPriceUSD()}
-                </span>
-              </label>
-              <input
-                type="text"
-                value={priceUSD}
-                onChange={handlePriceChange}
-                className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
-                placeholder="Your product price in USD"
-              />
-            </div>
-            <div className="mt-0 md:mt-4">
-              <ArrowLeftRight size={16} className="text-neutral-500" />
-            </div>
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-medium text-neutral-400">
-                Price (IDR)
-                {/* REMOVED Trend Indicators */}
-              </label>
-              <input
-                type="text"
-                value={priceIDR}
-                readOnly
-                className="mt-1 block w-full px-3 py-2 cursor-not-allowed bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
-              />
-            </div>
+          {/* Price Input Field (IDR Only) */}
+          <div className="w-full">
+            <label className="block text-sm font-medium text-neutral-400">
+              Price (IDR)
+            </label>
+            <input
+              type="text"
+              value={priceIDR}
+              onChange={handlePriceChange}
+              className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
+              placeholder="Your product price in IDR"
+            />
           </div>
 
           {/* Form Buttons */}
@@ -361,10 +334,9 @@ export default function EditProductPage() {
           </div>
         </div>
       </form>
-
       <div className="h-6"></div>
 
-      {/* Custom Styling for Quill in Dark Mode */}
+      {/* Custom Styling for Quill (keep this) */}
       <style jsx global>{`
         .quill-dark .ql-toolbar {
           background-color: #262626;

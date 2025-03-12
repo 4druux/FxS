@@ -10,36 +10,6 @@ export const ShopContext = createContext();
 export const ShopProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
   const [productsError, setProductsError] = useState(null);
-  const [exchangeRate, setExchangeRate] = useState(null);
-  const [exchangeRateLoading, setExchangeRateLoading] = useState(true);
-  const [exchangeRateError, setExchangeRateError] = useState(null);
-
-  // Fetch Exchange Rate (Real-time with Trend)
-  const fetchExchangeRate = useCallback(async () => {
-    setExchangeRateLoading(true);
-    setExchangeRateError(null);
-    try {
-      const response = await axios.get(
-        "https://v6.exchangerate-api.com/v6/208006103b23b6e248b13e36/latest/USD"
-      );
-      if (response.status !== 200) {
-        throw new Error(`Failed to fetch: ${response.status}`);
-      }
-      const data = response.data;
-      if (data?.conversion_rates?.IDR) {
-        const newRate = data.conversion_rates.IDR;
-        setExchangeRate(newRate);
-        localStorage.setItem("exchangeRate", newRate.toString());
-      } else {
-        throw new Error("Invalid exchange rate data");
-      }
-    } catch (err) {
-      setExchangeRateError(err.message || "Failed to fetch exchange rate.");
-      console.error("Exchange rate fetch error:", err);
-    } finally {
-      setExchangeRateLoading(false);
-    }
-  }, []);
 
   // Fetch Products
   const fetchProducts = useCallback(async () => {
@@ -59,7 +29,6 @@ export const ShopProvider = ({ children }) => {
         error.response?.data?.message || "Failed to fetch products.",
         { position: "top-right", className: "custom-toast" }
       );
-    } finally {
     }
   }, []);
 
@@ -151,27 +120,15 @@ export const ShopProvider = ({ children }) => {
     }
   }, []);
 
-  // Initial fetch and setup interval for exchange rate
   useEffect(() => {
-    fetchExchangeRate();
     fetchProducts();
-    const exchangeRateIntervalId = setInterval(() => {
-      fetchExchangeRate();
-    }, 60 * 1000); // Every 60 seconds
-    return () => {
-      clearInterval(exchangeRateIntervalId);
-    };
-  }, [fetchExchangeRate, fetchProducts]);
+  }, [fetchProducts]);
 
   return (
     <ShopContext.Provider
       value={{
         products,
         productsError,
-        exchangeRate,
-        exchangeRateLoading,
-        exchangeRateError,
-        fetchExchangeRate,
         fetchProducts,
         fetchProductById,
         addProduct,

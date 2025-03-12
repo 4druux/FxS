@@ -21,13 +21,8 @@ import { ShopContext } from "@/context/ShopContext"; // Import ShopContext
 
 function AllProductsPage() {
   // --- Context ---
-  const {
-    products,
-    productsError,
-    fetchProducts,
-    deleteProduct,
-    exchangeRate,
-  } = useContext(ShopContext); // Removed exchangeRateTrend
+  const { products, productsError, fetchProducts, deleteProduct } =
+    useContext(ShopContext); // Removed exchangeRate
   const router = useRouter();
 
   // --- State ---
@@ -71,6 +66,7 @@ function AllProductsPage() {
     },
     exit: { opacity: 0, scale: 0.8, transition: { duration: 0.2 } },
   };
+
   const inputVariants = {
     hidden: { width: 0, opacity: 0 },
     visible: {
@@ -85,7 +81,7 @@ function AllProductsPage() {
   const handleClearSearch = () => {
     setSearch("");
   };
-  
+
   const handleEdit = (productId) => {
     router.push(`/admin/dashboard/products/edit-product/${productId}`);
   };
@@ -98,6 +94,7 @@ function AllProductsPage() {
       icon: "warning",
     });
     setIsOverlay(false);
+
     if (confirmed) {
       setIsDeleting(true);
       try {
@@ -143,18 +140,18 @@ function AllProductsPage() {
     setCurrentPage(data.selected);
   };
 
-  // --- Computed Values --- (No changes here)
+  // --- Computed Values ---
   // 1. Apply Search Filtering
   const filteredProducts = products.filter((product) => {
     return product.name.toLowerCase().includes(search.toLowerCase());
   });
 
-  // 2. Apply Sorting (using priceUSD and createdAt/date)
+  // 2. Apply Sorting (using priceIDR and createdAt/date)
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sortType === "price-asc") {
-      return a.priceUSD - b.priceUSD;
+      return a.priceIDR - b.priceIDR; // Sort by priceIDR
     } else if (sortType === "price-desc") {
-      return b.priceUSD - a.priceUSD;
+      return b.priceIDR - a.priceIDR; // Sort by priceIDR
     } else if (sortType === "date-asc") {
       return new Date(a.createdAt) - new Date(b.createdAt);
     } else if (sortType === "date-desc") {
@@ -170,7 +167,7 @@ function AllProductsPage() {
     offset + productsPerPage
   );
 
-  // --- Options --- (No changes here)
+  // --- Options ---
   const sortOptions = [
     {
       value: "date-desc",
@@ -190,14 +187,12 @@ function AllProductsPage() {
     },
   ];
 
+  // Format IDR Price (Handles null/undefined)
   const formatPriceIDR = (price) => {
-    if (exchangeRate === null) {
-      return "Loading..."; // Or some other placeholder
+    if (price === null || price === undefined) {
+      return "N/A"; // Or any other suitable placeholder
     }
-    return (price * exchangeRate).toLocaleString("id-ID");
-  };
-  const formatPriceUSD = (price) => {
-    return price.toFixed(2);
+    return `Rp ${price.toLocaleString("id-ID")}`;
   };
 
   // --- Close dropdown when clicking outside --- (No changes here)
@@ -216,7 +211,7 @@ function AllProductsPage() {
     };
   }, []);
 
-  // --- JSX Rendering --- (MAJOR CHANGES HERE)
+  // --- JSX Rendering ---
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
@@ -257,7 +252,7 @@ function AllProductsPage() {
             <motion.div
               onClick={() => setIsDropdownSortOpen(!isDropdownSortOpen)}
               whileTap={{ scale: 0.95 }}
-              className="border rounded-full bg-neutral-900 border-neutral-700 hover:border-neutral-500 px-4 py-2 space-x-2 cursor-pointer 
+              className="border rounded-full bg-neutral-900 border-neutral-700 hover:border-neutral-500 px-4 py-2 space-x-2 cursor-pointer
               flex items-center justify-between transition-all duration-300 ease-in-out group"
             >
               <span
@@ -417,21 +412,13 @@ function AllProductsPage() {
                   {/*  Product Details */}
                   <div className="mt-2">
                     <div className="space-y-2 text-sm text-gray-600">
-                      <div className="flex justify-between items-center">
-                        <h3 className="text-neutral-200 text-xs sm:text-sm font-medium">
-                          Price (USD):
-                        </h3>
-                        <span className="text-neutral-300 font-bold text-xs sm:text-sm">
-                          ${formatPriceUSD(product.priceUSD || 0)}
-                        </span>
-                      </div>
+                      {/* Only display IDR price */}
                       <div className="flex justify-between items-center">
                         <h3 className="text-neutral-200 text-xs sm:text-sm font-medium">
                           Price (IDR):
                         </h3>
-                        {/* Removed Trend Indicator */}
                         <span className="text-xs sm:text-sm text-neutral-300">
-                          Rp{formatPriceIDR(product.priceUSD || 0)}
+                          {formatPriceIDR(product.priceIDR)}
                         </span>
                       </div>
                     </div>

@@ -35,7 +35,7 @@ export default function ProfilePage() {
   return (
     <PageTransition backgroundColor="#083344">
       <div className="min-h-screen bg-[#121212] text-white">
-        <div className="container mx-auto px-6 py-12">
+        <div className="container mx-auto py-12">
           {/* Header */}
           <div className="mb-6 flex items-start space-x-2">
             <IoIosArrowBack
@@ -68,7 +68,7 @@ export default function ProfilePage() {
             </div>
 
             {/* Informasi Akun + Password */}
-            <div className="border border-neutral-800 p-6 rounded-xl">
+            <div className="p-6 rounded-xl">
               <h2 className="text-2xl font-semibold mb-4">
                 Account Information
               </h2>

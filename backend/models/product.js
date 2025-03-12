@@ -4,7 +4,6 @@ const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
-    priceUSD: { type: Number, required: true, min: 0.01 },
     priceIDR: { type: Number, required: true, min: 0 },
     media: [
       {
@@ -18,4 +17,5 @@ const productSchema = new mongoose.Schema(
 );
 
 const Product = mongoose.model("Product", productSchema);
+
 module.exports = Product;

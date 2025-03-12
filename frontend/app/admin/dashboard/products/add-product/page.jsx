@@ -1,9 +1,7 @@
 // AddProductPage.jsx
 "use client";
-
 import MediaUploader from "@/components/1_admin/add-product/MediaUploader";
-import { ArrowLeftRight } from "lucide-react";
-import { useState, useEffect, useCallback, useContext } from "react";
+import { useState, useCallback, useContext } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { ShopContext } from "@/context/ShopContext";
@@ -13,76 +11,38 @@ export default function AddProductPage() {
   // --- State ---
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
-  const [priceUSD, setPriceUSD] = useState("");
-  const [priceIDR, setPriceIDR] = useState("");
+  const [priceIDR, setPriceIDR] = useState(""); // Store formatted price as string
   const [mediaFiles, setMediaFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // --- Context & Hooks ---
-  const {
-    exchangeRate,
-    exchangeRateLoading,
-    exchangeRateError,
-    addProduct, // Get addProduct from context
-  } = useContext(ShopContext);
+  const { addProduct } = useContext(ShopContext);
   const router = useRouter();
 
   // --- Helper Functions ---
 
-  // Format USD price
-  const formatPriceUSD = useCallback(() => {
-    if (!priceUSD) return "$ 0.00";
-    const numericValue = parseFloat(priceUSD);
-    return isNaN(numericValue)
-      ? "$ 0.00"
-      : numericValue.toLocaleString("en-US", {
-          style: "currency",
-          currency: "USD",
-        });
-  }, [priceUSD]);
-
-  // Format IDR Price
-  const formatPriceIDR = (price) => {
-    return `Rp ${parseInt(price).toLocaleString("id-ID", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    })}`;
-  };
-
-  // Convert USD to IDR
-  const convertUsdToIdr = useCallback(() => {
-    if (exchangeRate === null) return;
-    const numericUSD = parseFloat(priceUSD) || 0;
-    if (isNaN(numericUSD)) {
-      setPriceIDR("");
-      return;
-    }
-    const convertedIDR = numericUSD * exchangeRate;
-    setPriceIDR(formatPriceIDR(convertedIDR));
-  }, [priceUSD, exchangeRate]);
-
-  useEffect(() => {
-    convertUsdToIdr();
-  }, [convertUsdToIdr]);
-
-  // Sanitize and validate USD price input
+  // Sanitize and validate IDR price input (and format)
   const handlePriceChange = useCallback((e) => {
     let value = e.target.value;
-    value = value.replace(/[^0-9.]/g, "");
-    const parts = value.split(".");
-    if (parts.length > 2) {
-      value = parts[0] + "." + parts.slice(1).join("");
-    }
-    if (parts[1]?.length > 2) {
-      value = parts[0] + "." + parts[1].slice(0, 2);
-    }
-    setPriceUSD(value);
+    // Remove non-numeric characters
+    value = value.replace(/[^0-9]/g, "");
+
+    // Parse to integer (handle empty input)
+    const numericValue = parseInt(value, 10);
+
+    // Format with toLocaleString (handle NaN)
+    const formattedValue = isNaN(numericValue)
+      ? ""
+      : numericValue.toLocaleString("id-ID");
+
+    setPriceIDR(formattedValue);
   }, []);
 
-  // Check if the USD price is valid
+  // Check if the IDR price is valid
   const isPriceValid = () => {
-    const numericUSD = parseFloat(priceUSD) || 0;
-    return numericUSD >= 0.01;
+    // Remove non-numeric characters before parsing
+    const numericIDR = parseInt(priceIDR.replace(/[^0-9]/g, ""), 10) || 0;
+    return numericIDR > 0; // Ensure it's a positive number
   };
 
   // Convert a File object to Base64
@@ -109,8 +69,7 @@ export default function AddProductPage() {
     description.trim() !== "" &&
     isPriceValid() &&
     mediaFiles.length > 0 &&
-    mediaFiles.every((file) => file.cropped !== null) &&
-    exchangeRate !== null;
+    mediaFiles.every((file) => file.cropped !== null);
 
   // --- Form Submission ---
   const handleSubmit = async (e) => {
@@ -131,11 +90,13 @@ export default function AddProductPage() {
 
       const filteredMediaBase64 = mediaBase64.filter((item) => item !== null);
 
+      // **IMPORTANT: Parse priceIDR to a number before sending**
+      const numericPriceIDR = parseInt(priceIDR.replace(/[^0-9]/g, ""), 10);
+
       const productData = {
         name: productName,
         description,
-        priceUSD,
-        priceIDR: priceIDR.replace(/[^0-9]/g, ""),
+        priceIDR: numericPriceIDR, // Send the numeric value
         media: filteredMediaBase64,
       };
 
@@ -144,7 +105,7 @@ export default function AddProductPage() {
       router.push("/admin/dashboard/products"); // Redirect using next/navigation
     } catch (error) {
       console.error("Error adding product:", error);
-      //Error handling has been moved to context
+      // Error handling has been moved to context
     } finally {
       setIsLoading(false);
     }
@@ -169,7 +130,6 @@ export default function AddProductPage() {
               setMediaFiles={setMediaFiles}
             />
           </div>
-
           {/* Product Name */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-neutral-400">
@@ -183,7 +143,6 @@ export default function AddProductPage() {
               placeholder="Your product name"
             />
           </div>
-
           {/* Description */}
           <div className="col-span-2">
             <label className="block text-sm font-medium text-neutral-400 mb-1">
@@ -199,40 +158,19 @@ export default function AddProductPage() {
               />
             </div>
           </div>
-
-          {/* Price Input Fields */}
-          <div className="flex flex-col md:flex-row items-center gap-4">
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-medium text-neutral-400">
-                Price (USD){" "}
-                <span className="text-xs text-neutral-200">
-                  {formatPriceUSD()}
-                </span>
-              </label>
-              <input
-                type="text"
-                value={priceUSD}
-                onChange={handlePriceChange}
-                className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
-                placeholder="Your product price in USD"
-              />
-            </div>
-            <div className="mt-0 md:mt-4">
-              <ArrowLeftRight size={16} className="text-neutral-500" />
-            </div>
-            <div className="flex-1 w-full">
-              <label className="block text-sm font-medium text-neutral-400">
-                Price (IDR)
-              </label>
-              <input
-                type="text"
-                value={priceIDR}
-                readOnly
-                className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
-              />
-            </div>
+          {/* Price Input Field (IDR Only) */}
+          <div className="w-full">
+            <label className="block text-sm font-medium text-neutral-400">
+              Price (IDR)
+            </label>
+            <input
+              type="text"
+              value={priceIDR}
+              onChange={handlePriceChange}
+              className="mt-1 block w-full px-3 py-2 bg-neutral-800 border border-neutral-700 text-white text-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-500 placeholder-neutral-500 placeholder:text-xs"
+              placeholder="Your product price in IDR"
+            />
           </div>
-
           {/* Form Buttons */}
           <div className="col-span-2 flex justify-end space-x-2 sm:space-x-4 mt-4">
             <button
@@ -256,20 +194,12 @@ export default function AddProductPage() {
           </div>
         </div>
       </form>
-
       <div className="h-6"></div>
-
-      {exchangeRateLoading ||
-        (isLoading && (
-          <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
-          </div>
-        ))}
-
-      {exchangeRateError && (
-        <div className="text-red-500">Error: {exchangeRateError}</div>
+      {isLoading && (
+        <div className="fixed inset-0 bg-black flex justify-center items-center z-50">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-white"></div>
+        </div>
       )}
-
       {/* Custom Styling for Quill in Dark Mode */}
       <style jsx global>{`
         .quill-dark .ql-toolbar {

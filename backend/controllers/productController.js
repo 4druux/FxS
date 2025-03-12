@@ -2,7 +2,7 @@ const Product = require("../models/product");
 
 exports.addProduct = async (req, res) => {
   try {
-    const { name, description, priceUSD, priceIDR, media } = req.body;
+    const { name, description, priceIDR, media } = req.body;
 
     if (!media || !Array.isArray(media)) {
       return res.status(400).json({ message: "Media files are required" });
@@ -17,8 +17,7 @@ exports.addProduct = async (req, res) => {
     const newProduct = new Product({
       name,
       description,
-      priceUSD: parseFloat(priceUSD),
-      priceIDR: parseInt(priceIDR),
+      priceIDR: parseInt(priceIDR), // Only priceIDR
       media: mediaData,
     });
 
@@ -62,7 +61,7 @@ exports.getProductById = async (req, res) => {
 // Update a product by ID
 exports.updateProduct = async (req, res) => {
   try {
-    const { name, description, priceUSD, priceIDR, media } = req.body;
+    const { name, description, priceIDR, media } = req.body;
 
     // Find the existing product
     const product = await Product.findById(req.params.id);
@@ -70,24 +69,44 @@ exports.updateProduct = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Update fields
+    // --- Input Validation (Important!) ---
+    if (!name || name.trim() === "") {
+      return res.status(400).json({ message: "Product name is required" });
+    }
+    if (!description || description.trim() === "") {
+      return res
+        .status(400)
+        .json({ message: "Product description is required" });
+    }
+    if (!priceIDR || isNaN(parseInt(priceIDR))) {
+      return res.status(400).json({ message: "Valid IDR price is required" });
+    }
+    if (!media || !Array.isArray(media) || media.length === 0) {
+      return res.status(400).json({ message: "Media files are required" });
+    }
+
+    // Check media content types (Example - adjust as needed)
+    for (const item of media) {
+      if (!item.contentType || !item.data) {
+        return res.status(400).json({ message: "Invalid media data" });
+      }
+    }
+
+    // --- Update fields ---
     product.name = name;
     product.description = description;
-    product.priceUSD = parseFloat(priceUSD);
     product.priceIDR = parseInt(priceIDR);
 
     // Update media:  Handle Base64 data consistently
-    if (media && Array.isArray(media)) {
-      product.media = media.map((item) => ({
-        data: item.data,
-        contentType: item.contentType,
-      }));
-    }
+    product.media = media.map((item) => ({
+      data: item.data,
+      contentType: item.contentType,
+    }));
 
     const updatedProduct = await product.save();
     res.json(updatedProduct);
   } catch (error) {
-    // Improved error handling (as before, but consolidated)
+    // --- Improved Error Handling ---
     if (error.name === "ValidationError") {
       const messages = Object.values(error.errors).map((val) => val.message);
       return res.status(400).json({ message: messages });
